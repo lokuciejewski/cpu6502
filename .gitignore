@@ -1,0 +1,3 @@
+.idea
+.pytest_cache
+cpu6502/tests/.pytest_cache
