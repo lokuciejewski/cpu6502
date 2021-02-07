@@ -339,6 +339,7 @@ class LDA(AbstractInstruction):
     def zero_page_x(self):
         address = int(self.cpu.fetch_byte(), base=0)
         self.cpu.acc = int(self.cpu.read_byte(address + int(self.cpu.idx)), base=0)
+        ~self.cpu.clock  # One additional clock needed
 
     def absolute(self):
         pass

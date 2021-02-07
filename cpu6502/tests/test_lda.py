@@ -22,3 +22,16 @@ class TestLDA:
         assert setup_cpu.acc == value
         assert setup_cpu.clock.total_clock_cycles == 3
 
+    @pytest.mark.parametrize('zp_address', [0x0001, 0x0010, 0x00fe, 0x00ff])
+    @pytest.mark.parametrize('x_index_value', [0x01, 0xff, 0x10, 0xfe])
+    @pytest.mark.parametrize('value', [0x01, 0x00, 0xfe, 0xff])
+    def test_lda_zero_page_x(self, setup_cpu, zp_address, x_index_value, value):
+        setup_cpu.memory[0x0200] = 0xb5  # LDA instruction
+        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[zp_address + x_index_value] = value
+        setup_cpu.idx = x_index_value
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == value
+        assert setup_cpu.clock.total_clock_cycles == 4
+
+
