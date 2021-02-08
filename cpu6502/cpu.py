@@ -379,8 +379,9 @@ class JSR(AbstractInstruction):
         }
 
     def absolute(self):
-        self.cpu.push_word_on_stack(self.cpu.pc)
-        self.cpu.pc = int(self.cpu.read_word(self.cpu.pc), base=0)
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.push_word_on_stack(self.cpu.pc - 1)
+        self.cpu.pc = target_address
 
 
 class RTS(AbstractInstruction):
@@ -393,7 +394,7 @@ class RTS(AbstractInstruction):
 
     def implied(self):
         return_point = self.cpu.pop_word_from_stack()
-        self.cpu.pc = int(return_point, base=0) + 2  # To skip the 2 bytes after JSR
+        self.cpu.pc = int(return_point, base=0) + 1  # To compensate for 1 pc increment
         ~self.cpu.clock
 
 
