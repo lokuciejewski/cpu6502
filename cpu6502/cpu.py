@@ -90,7 +90,10 @@ class CPU(object):
     def execute(self, number_of_instructions: int) -> None:
         for i in range(number_of_instructions):
             instruction = self.fetch_byte()
-            self.instructions.execute(instruction)
+            try:
+                self.instructions.execute(instruction)
+            except KeyError:
+                print(f'Instruction {instruction} not recognised. Skipping...')
 
     def fetch_byte(self) -> hex:
         try:
@@ -111,7 +114,7 @@ class CPU(object):
 
     def write_byte(self, address: hex, value: ubyte):
         try:
-            if address < 0x01ff or address < 0x0100:
+            if 0x0100 <= address <= 0x01ff:  # Cannot write on stack
                 raise IndexError
             self.memory[address] = value
             ~self.clock
@@ -149,7 +152,7 @@ class CPU(object):
     def write_word(self, address: hex, value: ushort):
         # 6502 Cpu is little endian -> first byte is the least significant one
         try:
-            if address < 0x01ff or address < 0x0100:
+            if 0x0100 <= address <= 0x01ff:  # Cannot write on stack
                 raise IndexError
             self.memory[address] = value + 0xff
             ~self.clock

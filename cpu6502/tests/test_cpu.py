@@ -34,12 +34,31 @@ class TestCPU:
         setup_cpu.memory[address] = value
         assert setup_cpu.fetch_byte() == hex(value)
         assert setup_cpu.clock.total_clock_cycles == 1
+        assert setup_cpu.pc == address + 1
 
     @pytest.mark.parametrize('address', [0x0000, 0xffff, 0x0001, 0xfffe, 0x0e01])
     @pytest.mark.parametrize('value', [0x00, 0x01, 0xff, 0xfe, 0xae])
     def test_cpu_read_byte(self, setup_cpu, address, value):
+        pc_start = setup_cpu.pc
         setup_cpu.memory[address] = value
         assert setup_cpu.read_byte(address) == hex(value)
         assert setup_cpu.clock.total_clock_cycles == 1
+        assert setup_cpu.pc == pc_start
 
+    @pytest.mark.parametrize('address', [0x0200, 0xffff, 0x0001, 0xfffe, 0x0e01])
+    @pytest.mark.parametrize('value', [0x00, 0x01, 0xff, 0xfe, 0xae])
+    def test_cpu_write_byte_ok(self, setup_cpu, address, value):
+        pc_start = setup_cpu.pc
+        setup_cpu.write_byte(address, value)
+        assert setup_cpu.memory[address] == value
+        assert setup_cpu.clock.total_clock_cycles == 1
+        assert setup_cpu.pc == pc_start
+
+    @pytest.mark.parametrize('address', [0x0100, 0x0101, 0x0120, 0x01fe, 0x01ff])
+    def test_cpu_write_byte_on_stack(self, setup_cpu, address):
+        pc_start = setup_cpu.pc
+        setup_cpu.write_byte(address, 0x10)
+        assert setup_cpu.memory[address] == 0x0
+        assert setup_cpu.clock.total_clock_cycles == 0
+        assert setup_cpu.pc == pc_start
 
