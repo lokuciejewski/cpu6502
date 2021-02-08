@@ -347,10 +347,16 @@ class LDA(AbstractInstruction):
         self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
-        pass
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        if (address >> 8) != ((address + self.cpu.idx) >> 8):
+            ~self.cpu.clock
+        self.cpu.acc = int(self.cpu.read_byte(address + self.cpu.idx), base=0)
 
     def absolute_y(self):
-        pass
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        if (address >> 8) != ((address + self.cpu.idy) >> 8):
+            ~self.cpu.clock
+        self.cpu.acc = int(self.cpu.read_byte(address + self.cpu.idy), base=0)
 
     def indexed_indirect(self):
         pass
