@@ -107,7 +107,7 @@ class CPU(object):
             ~self.clock
             return hex(data)
         except IndexError:
-            print(f'Address {hex(address)} is out of memory bounds (0xffff)')
+            print(f'Address {address} is out of memory bounds (0xffff)')
 
     def write_byte(self, address: hex, value: ubyte):
         try:
@@ -116,7 +116,7 @@ class CPU(object):
             self.memory[address] = value
             ~self.clock
         except IndexError:
-            print(f'Address {hex(address)} is out of writable memory bounds (0x01ff - 0xffff)')
+            print(f'Address {address} is out of writable memory bounds (0x01ff - 0xffff)')
 
     def fetch_word(self) -> hex:
         # 6502 Cpu is little endian -> first byte is the least significant one
@@ -144,7 +144,7 @@ class CPU(object):
                 raise SystemError('This emulator only works on little endian systems')
             return hex(data)
         except IndexError:
-            print(f'Word {hex(address), hex(address + 1)} is out of memory bounds (0xffff)')
+            print(f'Word {address, address + 1} is out of memory bounds (0xffff)')
 
     def write_word(self, address: hex, value: ushort):
         # 6502 Cpu is little endian -> first byte is the least significant one
@@ -158,7 +158,7 @@ class CPU(object):
             if sys.byteorder == 'big':
                 raise SystemError('This emulator only works on little endian systems')
         except IndexError:
-            print(f'Word {hex(address), hex(address + 1)} is out of writable memory bounds (0x01ff - 0xffff)')
+            print(f'Word {address, address + 1} is out of writable memory bounds (0x01ff - 0xffff)')
 
     def push_byte_to_stack(self, value: ubyte):
         try:
@@ -342,7 +342,8 @@ class LDA(AbstractInstruction):
         ~self.cpu.clock  # One additional clock needed
 
     def absolute(self):
-        pass
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
         pass
