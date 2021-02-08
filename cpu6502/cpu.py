@@ -154,7 +154,7 @@ class CPU(object):
         try:
             if 0x0100 <= address <= 0x01ff:  # Cannot write on stack
                 raise IndexError
-            self.memory[address] = value + 0xff
+            self.memory[address] = value
             ~self.clock
             self.memory[address + 1] = (value >> 8)
             ~self.clock
@@ -163,7 +163,7 @@ class CPU(object):
         except IndexError:
             print(f'Word {address, address + 1} is out of writable memory bounds (0x01ff - 0xffff)')
 
-    def push_byte_to_stack(self, value: ubyte):
+    def push_byte_on_stack(self, value: ubyte):
         try:
             if self.sp >= 0x01ff:
                 raise IndexError
@@ -176,11 +176,11 @@ class CPU(object):
         except IndexError:
             print(f'Stack pointer ({self.sp}) is out of stack memory bounds (0x0100 - 0x01ff)')
 
-    def push_word_to_stack(self, value: ushort):
+    def push_word_on_stack(self, value: ushort):
         try:
             if self.sp >= 0x01fe:  # Can't write a word here if there is not enough space on the stack
                 raise IndexError
-            self.memory[self.sp] = ((value + 0x00ff) >> 8)
+            self.memory[self.sp] = value
             ~self.clock
             self.sp += 1
             self.memory[self.sp] = (value >> 8)
@@ -194,7 +194,7 @@ class CPU(object):
         except IndexError:
             print(f'Stack pointer ({self.sp}) is out of stack memory bounds (0x0100 - 0x01ff)')
 
-    def pop_byte_from_stack(self) -> ubyte:
+    def pop_byte_from_stack(self) -> hex:
         try:
             if self.sp <= 0x0100:
                 raise IndexError
@@ -205,7 +205,7 @@ class CPU(object):
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
             ~self.clock
             ~self.clock
-            return data
+            return hex(data)
         except IndexError:
             print(f'Stack pointer ({self.sp}) is out of stack memory bounds (0x0100 - 0x01ff)')
 
@@ -368,7 +368,7 @@ class JSR(AbstractInstruction):
         }
 
     def absolute(self):
-        self.cpu.push_word_to_stack(self.cpu.pc)
+        self.cpu.push_word_on_stack(self.cpu.pc)
         self.cpu.pc = int(self.cpu.read_word(self.cpu.pc), base=0)
 
 
