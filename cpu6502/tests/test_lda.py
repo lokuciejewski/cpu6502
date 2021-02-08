@@ -4,13 +4,19 @@ import pytest
 @pytest.mark.usefixtures('setup_cpu')
 class TestLDA:
 
-    @pytest.mark.parametrize('value', [0x1, 0x20, 0xff, 0x0, 0x12])
-    def test_lda_immediate(self, setup_cpu, value):
+    @pytest.mark.parametrize('value, zero_flag, neg_flag', [(0x1, False, False),
+                                                            (0x20, False, False),
+                                                            (0xff, False, True),
+                                                            (0x0, True, False),
+                                                            (0x12, False, False)])
+    def test_lda_immediate(self, setup_cpu, value, zero_flag, neg_flag):
         setup_cpu.memory[0x0200] = 0xa9  # LDA instruction
         setup_cpu.memory[0x0201] = value
         setup_cpu.execute(1)
         assert setup_cpu.acc == value
         assert setup_cpu.clock.total_clock_cycles == 2
+        assert setup_cpu.ps['negative_flag'] == neg_flag
+        assert setup_cpu.ps['zero_flag'] == zero_flag
 
     @pytest.mark.parametrize('zp_address', [0x01, 0x10, 0xfe, 0xff, 0xf1])
     @pytest.mark.parametrize('value', [0x01, 0x00, 0xfe, 0xff, 0xe1])

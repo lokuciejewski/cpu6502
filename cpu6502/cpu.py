@@ -255,10 +255,12 @@ class Instructions:
                     self.opcodes[opcode] = self.internal_assignment[instruction['name']]
                 except KeyError:
                     pass
-                    #print(f'Instruction not supported: {instruction["name"]}')
+                    # print(f'Instruction not supported: {instruction["name"]}')
 
     def execute(self, opcode: str):
-        self.opcodes[opcode](self.cpu).execute(opcode)
+        instruction = self.opcodes[opcode](self.cpu)
+        instruction.execute(opcode)
+        instruction.finalise()
 
 
 class AbstractInstruction:
@@ -284,8 +286,7 @@ class AbstractInstruction:
         """
         self.opcodes[opcode]()
 
-    @abstractmethod
-    def __del__(self):
+    def finalise(self):
         """
         Method to specify events that happen for every type of addressing after the instruction is executed
         :return: None
@@ -300,9 +301,6 @@ class RES(AbstractInstruction):
         self.opcodes = {
             '0xbb': self.implied
         }
-
-    def __del__(self):
-        pass
 
     def implied(self):
         ~self.cpu.clock
@@ -325,8 +323,8 @@ class LDA(AbstractInstruction):
             '0xb1': self.indirect_y
         }
 
-    def __del__(self):
-        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+    def finalise(self):
+        self.cpu.ps['zero_flag'] = (self.cpu.acc == 0)
         self.cpu.ps['negative_flag'] = self.cpu.acc > 0b01111111  # Set negative flag if bit 7 of acc is set
 
     def immediate(self):
@@ -366,9 +364,6 @@ class JSR(AbstractInstruction):
             '0x20': self.absolute
         }
 
-    def __del__(self):
-        pass
-
     def absolute(self):
         self.cpu.push_word_to_stack(self.cpu.pc)
         self.cpu.pc = int(self.cpu.read_word(self.cpu.pc), base=0)
@@ -381,9 +376,6 @@ class RTS(AbstractInstruction):
         self.opcodes = {
             '0x60': self.implied
         }
-
-    def __del__(self):
-        pass
 
     def implied(self):
         return_point = self.cpu.pop_word_from_stack()
@@ -399,9 +391,6 @@ class JMP(AbstractInstruction):
             '0x4c': self.absolute,
             '0x6c': self.indirect
         }
-
-    def __del__(self):
-        pass
 
     def absolute(self):
         target_address = self.cpu.read_word(self.cpu.pc)
