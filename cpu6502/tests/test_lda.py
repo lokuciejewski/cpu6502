@@ -107,7 +107,7 @@ class TestLDA:
 
     @pytest.mark.parametrize('offset', [0x10, 0xff, 0x00, 0x01])
     @pytest.mark.parametrize('idx', [0x10, 0xff, 0x00, 0x01])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x01, 0xfe), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x20, 0x01), (0x2e, 0xfe), (0xfa, 0xa1)])
     @pytest.mark.parametrize('value', [0x10, 0xff, 0x00, 0x01])
     def test_lda_indexed_indirect(self, setup_cpu, offset, idx, address_fst, address_snd, value):
         setup_cpu.idx = idx
@@ -123,7 +123,7 @@ class TestLDA:
 
     @pytest.mark.parametrize('address', [0x10, 0xff, 0x00, 0x01])
     @pytest.mark.parametrize('idy', [0x10, 0xff, 0x00, 0x01])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x01, 0xfe), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x20, 0x01), (0x2e, 0xfe), (0xfa, 0xa1)])
     @pytest.mark.parametrize('value', [0x10, 0xff, 0x00, 0x01])
     def test_lda_indirect_indexed(self, setup_cpu, address, idy, address_fst, address_snd, value):
         setup_cpu.idy = idy

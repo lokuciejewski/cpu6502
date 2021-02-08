@@ -359,10 +359,15 @@ class LDA(AbstractInstruction):
         self.cpu.acc = int(self.cpu.read_byte(address + self.cpu.idy), base=0)
 
     def indexed_indirect(self):
-        pass
+        zp_address = int(self.cpu.read_byte(self.cpu.pc), base=0) + self.cpu.idx
+        ~self.cpu.clock
+        address = int(self.cpu.read_word(zp_address), base=0)
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def indirect_indexed(self):
-        pass
+        zp_address = int(self.cpu.read_byte(self.cpu.pc), base=0)
+        address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
 
 class JSR(AbstractInstruction):
