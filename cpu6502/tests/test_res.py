@@ -12,4 +12,5 @@ class TestRES:
             cpu.pc = 0x0200
             cpu.memory = Memory()
             cpu.memory[0x0200] = 0xbb  # RES
+            cpu.execute(1)
             assert mocked_reset.called_once()
