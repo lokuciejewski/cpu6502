@@ -411,4 +411,6 @@ class JMP(AbstractInstruction):
         self.cpu.pc = int(target_address, base=0)
 
     def indirect(self):
-        pass
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        target_address = self.cpu.read_word(address)
+        self.cpu.pc = int(target_address, base=0)
