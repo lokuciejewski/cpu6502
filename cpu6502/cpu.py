@@ -322,8 +322,8 @@ class LDA(AbstractInstruction):
             '0xad': self.absolute,
             '0xbd': self.absolute_x,
             '0xb9': self.absolute_y,
-            '0xa1': self.indirect_x,
-            '0xb1': self.indirect_y
+            '0xa1': self.indexed_indirect,
+            '0xb1': self.indirect_indexed
         }
 
     def finalise(self):
@@ -352,10 +352,10 @@ class LDA(AbstractInstruction):
     def absolute_y(self):
         pass
 
-    def indirect_x(self):
+    def indexed_indirect(self):
         pass
 
-    def indirect_y(self):
+    def indirect_indexed(self):
         pass
 
 
