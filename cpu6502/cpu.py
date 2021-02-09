@@ -68,7 +68,7 @@ class CPU(object):
 
     def reset(self) -> None:
         self.pc = 0xfffc
-        self.sp = 0x0100
+        self.sp = 0x01ff
         self.acc = 0
         self.idx = 0
         self.idy = 0
@@ -164,11 +164,11 @@ class CPU(object):
 
     def push_byte_on_stack(self, value: ubyte):
         try:
-            if self.sp >= 0x01ff:
+            if self.sp <= 0x0100:
                 raise IndexError
             self.memory[self.sp] = value
             ~self.clock
-            self.sp += 1
+            self.sp -= 1
             # One extra cycle for each push operation according to
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
             ~self.clock
@@ -177,14 +177,14 @@ class CPU(object):
 
     def push_word_on_stack(self, value: ushort):
         try:
-            if self.sp >= 0x01fe:  # Can't write a word here if there is not enough space on the stack
+            if self.sp <= 0x0101:  # Can't write a word here if there is not enough space on the stack
                 raise IndexError
             self.memory[self.sp] = value
             ~self.clock
-            self.sp += 1
+            self.sp -= 1
             self.memory[self.sp] = (value >> 8)
             ~self.clock
-            self.sp += 1
+            self.sp -= 1
             # One extra cycle for each push operation according to
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
             ~self.clock
@@ -195,11 +195,11 @@ class CPU(object):
 
     def pop_byte_from_stack(self) -> hex:
         try:
-            if self.sp <= 0x0100:
+            if self.sp >= 0x01ff:
                 raise IndexError
             data = self.memory[self.sp]
             ~self.clock
-            self.sp -= 1
+            self.sp += 1
             # Two extra cycles for each pop operation according to
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
             ~self.clock
@@ -210,13 +210,13 @@ class CPU(object):
 
     def pop_word_from_stack(self) -> hex:
         try:
-            if self.sp <= 0x0101:  # Can't pop a word from stack if there is only one byte on it
+            if self.sp >= 0x01fe:  # Can't pop a word from stack if there is only one byte on it
                 raise IndexError
             ~self.clock
-            self.sp -= 1
+            self.sp += 1
             data = (self.memory[self.sp] << 8)
             ~self.clock
-            self.sp -= 1
+            self.sp += 1
             data |= self.memory[self.sp]
             # Two extra cycles for each pop operation according to
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
