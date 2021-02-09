@@ -11,7 +11,7 @@ class TestLDX:
         setup_cpu.memory[0x0200] = 0xa2  # LDX instruction
         setup_cpu.memory[0x0201] = value
         setup_cpu.execute(1)
-        assert setup_cpu.ldx == value
+        assert setup_cpu.idx == value
         assert setup_cpu.clock.total_clock_cycles == 2
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag
@@ -26,7 +26,7 @@ class TestLDX:
         setup_cpu.memory[0x0201] = zp_address
         setup_cpu.memory[zp_address] = value
         setup_cpu.execute(1)
-        assert setup_cpu.ldx == value
+        assert setup_cpu.idx == value
         assert setup_cpu.clock.total_clock_cycles == 3
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag
@@ -43,7 +43,7 @@ class TestLDX:
         setup_cpu.memory[zp_address + idy] = value
         setup_cpu.idy = idy
         setup_cpu.execute(1)
-        assert setup_cpu.ldx == value
+        assert setup_cpu.idx == value
         assert setup_cpu.clock.total_clock_cycles == 4
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag
@@ -60,7 +60,7 @@ class TestLDX:
         address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
         setup_cpu.memory[address] = value
         setup_cpu.execute(1)
-        assert setup_cpu.ldx == value
+        assert setup_cpu.idx == value
         assert setup_cpu.clock.total_clock_cycles == 4
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag
@@ -75,10 +75,11 @@ class TestLDX:
         setup_cpu.memory[0x0200] = 0xbe  # LDX instruction
         setup_cpu.memory[0x0201] = address_snd
         setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.idy = idy
         address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
         setup_cpu.memory[address + idy] = value
         setup_cpu.execute(1)
-        assert setup_cpu.ldx == value
+        assert setup_cpu.idx == value
         assert setup_cpu.clock.total_clock_cycles == 4
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag
@@ -93,10 +94,11 @@ class TestLDX:
         setup_cpu.memory[0x0200] = 0xbe  # LDX instruction
         setup_cpu.memory[0x0201] = address_snd
         setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.idy = idy
         address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
         setup_cpu.memory[address + idy] = value
         setup_cpu.execute(1)
-        assert setup_cpu.ldx == value
+        assert setup_cpu.idx == value
         assert setup_cpu.clock.total_clock_cycles == 5
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag

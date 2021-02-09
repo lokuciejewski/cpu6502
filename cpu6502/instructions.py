@@ -11,7 +11,9 @@ class Instructions:
             'LDA': LDA,
             'JSR': JSR,
             'RTS': RTS,
-            'JMP': JMP
+            'JMP': JMP,
+            'LDX': LDX,
+            'LDY': LDY
         }
         self.__parse_instruction_json(filepath)
         self.cpu = cpu
@@ -187,3 +189,81 @@ class JMP(AbstractInstruction):
         address = int(self.cpu.read_word(self.cpu.pc), base=0)
         target_address = self.cpu.read_word(address)
         self.cpu.pc = int(target_address, base=0)
+
+
+class LDX(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            "0xa2": self.immediate,
+            "0xa6": self.zero_page,
+            "0xb6": self.zero_page_y,
+            "0xae": self.absolute,
+            "0xbe": self.absolute_y
+        }
+
+    def finalise(self):
+        self.cpu.ps['zero_flag'] = (self.cpu.idx == 0)
+        self.cpu.ps['negative_flag'] = self.cpu.idx > 0b01111111  # Set negative flag if bit 7 of acc is set
+
+    def immediate(self):
+        self.cpu.idx = int(self.cpu.fetch_byte(), base=0)
+
+    def zero_page(self):
+        address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.idx = int(self.cpu.read_byte(address), base=0)
+
+    def zero_page_y(self):
+        address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.idx = int(self.cpu.read_byte(address + int(self.cpu.idy)), base=0)
+        ~self.cpu.clock  # One additional clock needed
+
+    def absolute(self):
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        self.cpu.idx = int(self.cpu.read_byte(address), base=0)
+
+    def absolute_y(self):
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        if (address >> 8) != ((address + self.cpu.idy) >> 8):
+            ~self.cpu.clock
+        self.cpu.idx = int(self.cpu.read_byte(address + self.cpu.idy), base=0)
+
+
+class LDY(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            "0xa0": self.immediate,
+            "0xa4": self.zero_page,
+            "0xb4": self.zero_page_x,
+            "0xac": self.absolute,
+            "0xbc": self.absolute_x
+        }
+
+    def finalise(self):
+        self.cpu.ps['zero_flag'] = (self.cpu.idy == 0)
+        self.cpu.ps['negative_flag'] = self.cpu.idy > 0b01111111  # Set negative flag if bit 7 of acc is set
+
+    def immediate(self):
+        self.cpu.idy = int(self.cpu.fetch_byte(), base=0)
+
+    def zero_page(self):
+        address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.idy = int(self.cpu.read_byte(address), base=0)
+
+    def zero_page_x(self):
+        address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.idy = int(self.cpu.read_byte(address + int(self.cpu.idx)), base=0)
+        ~self.cpu.clock  # One additional clock needed
+
+    def absolute(self):
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        self.cpu.idy = int(self.cpu.read_byte(address), base=0)
+
+    def absolute_x(self):
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        if (address >> 8) != ((address + self.cpu.idx) >> 8):
+            ~self.cpu.clock
+        self.cpu.idy = int(self.cpu.read_byte(address + self.cpu.idx), base=0)
