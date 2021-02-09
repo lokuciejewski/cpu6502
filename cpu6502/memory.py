@@ -17,7 +17,7 @@ class Memory:
     def __getitem__(self, item) -> np.ubyte:
         return self.data[item]
 
-    def __setitem__(self, key: int, value: np.ubyte):
+    def __setitem__(self, key: np.short, value: np.ubyte):
         self.data[key] = value
 
     def get_values(self, address: np.ushort, n: int) -> list:
