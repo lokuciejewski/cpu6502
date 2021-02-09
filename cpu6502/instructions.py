@@ -13,7 +13,8 @@ class Instructions:
             'RTS': RTS,
             'JMP': JMP,
             'LDX': LDX,
-            'LDY': LDY
+            'LDY': LDY,
+            'NOP': NOP
         }
         self.__parse_instruction_json(filepath)
         self.cpu = cpu
@@ -267,3 +268,16 @@ class LDY(AbstractInstruction):
         if (address >> 8) != ((address + self.cpu.idx) >> 8):
             ~self.cpu.clock
         self.cpu.idy = int(self.cpu.read_byte(address + self.cpu.idx), base=0)
+
+
+class NOP(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xea': self.implied
+        }
+
+    def implied(self):
+        self.cpu.pc += 1
+        ~self.cpu.clock
