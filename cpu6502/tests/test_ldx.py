@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.usefixtures('setup_cpu')
 class TestLDX:
 
     @pytest.mark.parametrize('value, zero_flag, neg_flag', [(0x1, False, False),
@@ -102,5 +103,3 @@ class TestLDX:
         assert setup_cpu.clock.total_clock_cycles == 5
         assert setup_cpu.ps['zero_flag'] == zero_flag
         assert setup_cpu.ps['negative_flag'] == neg_flag
-
-

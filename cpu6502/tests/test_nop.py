@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.usefixtures('setup_cpu')
 class TestNOP:
 
     @pytest.mark.parametrize('pc', [0x0000, 0x0001, 0x0fff, 0xffff])

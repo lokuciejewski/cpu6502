@@ -14,7 +14,10 @@ class Instructions:
             'JMP': JMP,
             'LDX': LDX,
             'LDY': LDY,
-            'NOP': NOP
+            'NOP': NOP,
+            'STA': STA,
+            'STX': STX,
+            'STY': STY
         }
         self.__parse_instruction_json(filepath)
         self.cpu = cpu
@@ -281,3 +284,21 @@ class NOP(AbstractInstruction):
     def implied(self):
         self.cpu.pc += 1
         ~self.cpu.clock
+
+
+class STA(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+
+
+class STX(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+
+
+class STY(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
