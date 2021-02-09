@@ -3,7 +3,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from cpu6502.cpu import CPU, Instructions
+from cpu6502.cpu import CPU
+from cpu6502.instructions import Instructions
 
 
 @pytest.mark.usefixtures('setup_cpu')
