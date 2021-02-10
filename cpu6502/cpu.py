@@ -113,20 +113,19 @@ class CPU(object):
     def convert_binary_to_ps(self) -> None:
         bin_ps = int(self.pull_byte_from_stack(), base=0)
         temp_ps = bin(bin_ps)[2:].zfill(7)  # str representation of 7 bits
-        try:
-            self.ps['carry_flag'] = bool(int(temp_ps[0]))
-            self.ps['zero_flag'] = bool(int(temp_ps[1]))
-            self.ps['interrupt_disable'] = bool(int(temp_ps[2]))
-            self.ps['decimal_mode'] = bool(int(temp_ps[3]))
-            self.ps['break_command'] = bool(int(temp_ps[4]))
-            self.ps['overflow_flag'] = bool(int(temp_ps[5]))
-            self.ps['negative_flag'] = bool(int(temp_ps[6]))
-        except IndexError:
-            print('XD')
+        self.ps['carry_flag'] = bool(int(temp_ps[0]))
+        self.ps['zero_flag'] = bool(int(temp_ps[1]))
+        self.ps['interrupt_disable'] = bool(int(temp_ps[2]))
+        self.ps['decimal_mode'] = bool(int(temp_ps[3]))
+        self.ps['break_command'] = bool(int(temp_ps[4]))
+        self.ps['overflow_flag'] = bool(int(temp_ps[5]))
+        self.ps['negative_flag'] = bool(int(temp_ps[6]))
 
     def execute(self, number_of_instructions: int) -> None:
         for i in range(number_of_instructions):
             instruction = self.fetch_byte()
+            if len(instruction) == 3:  # This means the 0 was cut out like in 0x09 -> 0x9
+                instruction = f'0x0{instruction.split("x")[-1]}'
             try:
                 self.instructions.execute(instruction)
             except KeyError:

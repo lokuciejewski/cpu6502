@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 
@@ -150,8 +151,8 @@ class TestLDA:
         setup_cpu.idx = idx
         setup_cpu.memory[0x0200] = 0xa1  # LDA instruction
         setup_cpu.memory[0x201] = offset
-        setup_cpu.memory[offset + setup_cpu.idx] = address_snd
-        setup_cpu.memory[offset + setup_cpu.idx + 1] = address_fst
+        setup_cpu.memory[np.ubyte(offset + setup_cpu.idx)] = address_snd
+        setup_cpu.memory[np.ubyte(offset + setup_cpu.idx) + 1] = address_fst
         address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
         setup_cpu.memory[address] = value
         setup_cpu.execute(1)
@@ -349,7 +350,7 @@ class TestLDY:
     def test_ldy_zero_page_x(self, setup_cpu, value, zero_flag, neg_flag, zp_address, idx):
         setup_cpu.memory[0x0200] = 0xb4  # LDY instruction
         setup_cpu.memory[0x0201] = zp_address
-        setup_cpu.memory[zp_address + idx] = value
+        setup_cpu.memory[np.ubyte(zp_address + idx)] = value
         setup_cpu.idx = idx
         setup_cpu.execute(1)
         assert setup_cpu.idy == value

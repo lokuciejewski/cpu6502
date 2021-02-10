@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 
@@ -23,7 +24,7 @@ class TestSTA:
         setup_cpu.memory[0x0200] = 0x95  # STA instruction
         setup_cpu.memory[0x0201] = zp_address
         setup_cpu.execute(1)
-        assert setup_cpu.memory[zp_address + idx] == value
+        assert setup_cpu.memory[np.ubyte(zp_address + idx)] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
@@ -75,7 +76,7 @@ class TestSTA:
         setup_cpu.memory[0x0201] = zp_address
         setup_cpu.idx = idx
         setup_cpu.acc = value
-        address = zp_address + setup_cpu.idx
+        address = np.ubyte(zp_address + setup_cpu.idx)
         setup_cpu.memory[address] = address_snd
         setup_cpu.memory[address + 1] = address_fst
         target_address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
@@ -160,7 +161,7 @@ class TestSTY:
         setup_cpu.memory[0x0200] = 0x94  # STY instruction
         setup_cpu.memory[0x0201] = zp_address
         setup_cpu.execute(1)
-        assert setup_cpu.memory[zp_address + idx] == value
+        assert setup_cpu.memory[np.ubyte(zp_address + idx)] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
