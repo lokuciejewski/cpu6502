@@ -1,6 +1,7 @@
 import sys
 from time import sleep
 
+import numpy as np
 from numpy import ushort, ubyte
 
 from cpu6502.instructions import Instructions
@@ -17,7 +18,7 @@ class CPU(object):
             self.cycles = True
             self.total_clock_cycles = 0
             if speed_mhz > 0:
-                self.speed = 1/(1000 * speed_mhz)
+                self.speed = 1 / (1000 * speed_mhz)
             else:
                 self.speed = 0
 
@@ -102,6 +103,26 @@ class CPU(object):
         self.pc = int(pc_address, base=0)
         self.ps['interrupt_disable'] = False
         print('=========== RESET ===========')
+
+    def convert_ps_to_binary(self) -> np.ubyte:
+        res = 0b0
+        for i, (name, bit) in enumerate(self.ps.items()):
+            res += bit << (6 - i)
+        return np.ubyte(res)
+
+    def convert_binary_to_ps(self) -> None:
+        bin_ps = int(self.pull_byte_from_stack(), base=0)
+        temp_ps = bin(bin_ps)[2:].zfill(7)  # str representation of 7 bits
+        try:
+            self.ps['carry_flag'] = bool(int(temp_ps[0]))
+            self.ps['zero_flag'] = bool(int(temp_ps[1]))
+            self.ps['interrupt_disable'] = bool(int(temp_ps[2]))
+            self.ps['decimal_mode'] = bool(int(temp_ps[3]))
+            self.ps['break_command'] = bool(int(temp_ps[4]))
+            self.ps['overflow_flag'] = bool(int(temp_ps[5]))
+            self.ps['negative_flag'] = bool(int(temp_ps[6]))
+        except IndexError:
+            print('XD')
 
     def execute(self, number_of_instructions: int) -> None:
         for i in range(number_of_instructions):
@@ -210,7 +231,7 @@ class CPU(object):
         except IndexError:
             print(f'Stack pointer ({self.sp}) is out of stack memory bounds (0x0100 - 0x01ff)')
 
-    def pop_byte_from_stack(self) -> hex:
+    def pull_byte_from_stack(self) -> hex:
         try:
             if self.sp >= 0xff:
                 raise IndexError
@@ -225,7 +246,7 @@ class CPU(object):
         except IndexError:
             print(f'Stack pointer ({self.sp}) is out of stack memory bounds (0x0100 - 0x01ff)')
 
-    def pop_word_from_stack(self) -> hex:
+    def pull_word_from_stack(self) -> hex:
         try:
             if self.sp >= 0xfe:  # Can't pop a word from stack if there is only one byte on it
                 raise IndexError

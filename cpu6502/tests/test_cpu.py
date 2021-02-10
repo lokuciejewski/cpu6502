@@ -30,6 +30,73 @@ class TestCPU:
         assert not cpu.ps['decimal_mode']
         assert cpu.clock.total_clock_cycles == 7
 
+    @pytest.mark.parametrize('ps, result', [({
+                                                 'carry_flag': True,
+                                                 'zero_flag': True,
+                                                 'interrupt_disable': False,
+                                                 'decimal_mode': True,
+                                                 'break_command': False,
+                                                 'overflow_flag': False,
+                                                 'negative_flag': True
+                                             }, 0b01101001),
+        ({
+             'carry_flag': False,
+             'zero_flag': False,
+             'interrupt_disable': False,
+             'decimal_mode': False,
+             'break_command': False,
+             'overflow_flag': False,
+             'negative_flag': False
+         }, 0b00000000),
+        ({
+             'carry_flag': True,
+             'zero_flag': True,
+             'interrupt_disable': True,
+             'decimal_mode': True,
+             'break_command': True,
+             'overflow_flag': True,
+             'negative_flag': True
+         }, 0b01111111)])
+    def test_cpu_convert_ps_to_binary(self, setup_cpu, ps, result):
+        setup_cpu.ps = ps
+        assert setup_cpu.convert_ps_to_binary() == result
+        assert setup_cpu.clock.total_clock_cycles == 0
+
+    @pytest.mark.parametrize('result, bin_ps', [({
+                                                 'carry_flag': True,
+                                                 'zero_flag': True,
+                                                 'interrupt_disable': False,
+                                                 'decimal_mode': True,
+                                                 'break_command': False,
+                                                 'overflow_flag': False,
+                                                 'negative_flag': True
+                                             }, 0b01101001),
+        ({
+             'carry_flag': False,
+             'zero_flag': False,
+             'interrupt_disable': False,
+             'decimal_mode': False,
+             'break_command': False,
+             'overflow_flag': False,
+             'negative_flag': False
+         }, 0b00000000),
+        ({
+             'carry_flag': True,
+             'zero_flag': True,
+             'interrupt_disable': True,
+             'decimal_mode': True,
+             'break_command': True,
+             'overflow_flag': True,
+             'negative_flag': True
+         }, 0b01111111)])
+    @pytest.mark.parametrize('sp', [0x0, 0xf1, 0xfe])
+    def test_cpu_convert_binary_to_ps(self, setup_cpu, result, bin_ps, sp):
+        setup_cpu.sp = sp
+        setup_cpu.memory[sp + 0x0100] = np.ubyte(bin_ps)
+        setup_cpu.convert_binary_to_ps()
+        assert setup_cpu.ps == result
+        assert setup_cpu.clock.total_clock_cycles == 3
+
     @pytest.mark.parametrize('num_of_instructions', [0, 1, 2, 5])
     def test_cpu_execute(self, setup_cpu, num_of_instructions):
         with patch.object(Instructions, 'execute') as mocked_exec, \
@@ -137,7 +204,7 @@ class TestCPU:
         pc_start = setup_cpu.pc
         setup_cpu.sp = sp
         setup_cpu.memory[sp + 0x0100] = value
-        assert hex(value) == setup_cpu.pop_byte_from_stack()
+        assert hex(value) == setup_cpu.pull_byte_from_stack()
         assert setup_cpu.sp == sp + 1
         assert setup_cpu.clock.total_clock_cycles == 3
         assert setup_cpu.pc == pc_start
@@ -145,7 +212,7 @@ class TestCPU:
     def test_cpu_pop_byte_from_stack_empty(self, setup_cpu):
         pc_start = setup_cpu.pc
         setup_cpu.sp = 0xff
-        assert setup_cpu.pop_byte_from_stack() is None
+        assert setup_cpu.pull_byte_from_stack() is None
         assert setup_cpu.sp == 0xff
         assert setup_cpu.clock.total_clock_cycles == 0
         assert setup_cpu.pc == pc_start
@@ -179,7 +246,7 @@ class TestCPU:
         setup_cpu.sp = sp
         setup_cpu.memory[setup_cpu.sp + 0x0102] = np.ubyte(value)
         setup_cpu.memory[setup_cpu.sp + 0x0101] = np.ubyte(value >> 8)
-        assert hex(value) == setup_cpu.pop_word_from_stack()
+        assert hex(value) == setup_cpu.pull_word_from_stack()
         assert setup_cpu.sp == sp + 2
         assert setup_cpu.clock.total_clock_cycles == 4
         assert setup_cpu.pc == pc_start
@@ -188,7 +255,7 @@ class TestCPU:
     def test_cpu_pop_word_from_stack_empty(self, setup_cpu, sp):
         pc_start = setup_cpu.pc
         setup_cpu.sp = sp
-        assert setup_cpu.pop_word_from_stack() is None
+        assert setup_cpu.pull_word_from_stack() is None
         assert setup_cpu.sp == sp
         assert setup_cpu.clock.total_clock_cycles == 0
         assert setup_cpu.pc == pc_start

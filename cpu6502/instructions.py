@@ -1,29 +1,37 @@
 import json
 from abc import abstractmethod
 
-import numpy as np
-
 
 class Instructions:
 
     def __init__(self, cpu, filepath: str):
         self.opcodes = {}
         self.internal_assignment = {
+            # Instruction order taken from http://www.obelisk.me.uk/6502/instructions.html
+            # LOAD AND STORE
             'LDA': LDA,
             'LDX': LDX,
             'LDY': LDY,
             'STA': STA,
             'STX': STX,
             'STY': STY,
+            # TRANSFER
             'TAX': TAX,
             'TAY': TAY,
             'TXA': TXA,
             'TYA': TYA,
             'TSX': TSX,
             'TXS': TXS,
+            # STACK OPERATIONS
+            'PHA': PHA,
+            'PHP': PHP,
+            'PLA': PLA,
+            'PLP': PLP,
+            # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
             'RTS': RTS,
+            # MISC
             'NOP': NOP,
             'RES': RES,
         }
@@ -84,7 +92,7 @@ class AbstractInstruction:
         pass
 
 
-"""LOAD/STORE instructions"""
+"""LOAD/STORE INSTRUCTIONS"""
 
 
 class LDA(AbstractInstruction):
@@ -324,7 +332,7 @@ class STY(AbstractInstruction):
         self.cpu.write_byte(address=target_address, value=self.cpu.idy)
 
 
-"""REGISTER TRANSFER instructions"""
+"""TRANSFER INSTRUCTIONS"""
 
 
 class TAX(AbstractInstruction):
@@ -425,6 +433,45 @@ class TXS(AbstractInstruction):
         ~self.cpu.clock
 
 
+"""STACK OPERATIONS"""
+
+
+class PHA(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x48': self.implied
+        }
+
+
+class PHP(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x08': self.implied
+        }
+
+
+class PLA(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x68': self.implied
+        }
+
+
+class PLP(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x28': self.implied
+        }
+
+
 """JUMPS AND CALLS"""
 
 
@@ -470,9 +517,12 @@ class RTS(AbstractInstruction):
         }
 
     def implied(self):
-        return_point = self.cpu.pop_word_from_stack()
+        return_point = self.cpu.pull_word_from_stack()
         self.cpu.pc = int(return_point, base=0) + 1  # To compensate for 1 pc increment
         ~self.cpu.clock
+
+
+"""MISC"""
 
 
 class NOP(AbstractInstruction):
