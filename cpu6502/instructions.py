@@ -1,6 +1,8 @@
 import json
 from abc import abstractmethod
 
+import numpy as np
+
 
 class Instructions:
 
@@ -17,6 +19,8 @@ class Instructions:
             'TAY': TAY,
             'TXA': TXA,
             'TYA': TYA,
+            'TSX': TSX,
+            'TXS': TXS,
             'JMP': JMP,
             'JSR': JSR,
             'RTS': RTS,
@@ -389,6 +393,36 @@ class TYA(AbstractInstruction):
     def finalise(self):
         self.cpu.ps['zero_flag'] = (self.cpu.acc == 0)
         self.cpu.ps['negative_flag'] = self.cpu.acc > 0b01111111  # Set negative flag if bit 7 of acc is set
+
+
+class TSX(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xba': self.implied
+        }
+
+    def implied(self):
+        self.cpu.idx = self.cpu.sp
+        ~self.cpu.clock
+
+    def finalise(self):
+        self.cpu.ps['zero_flag'] = (self.cpu.idx == 0)
+        self.cpu.ps['negative_flag'] = self.cpu.idx > 0b01111111  # Set negative flag if bit 7 of acc is set
+
+
+class TXS(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x9a': self.implied
+        }
+
+    def implied(self):
+        self.cpu.sp = self.cpu.idx
+        ~self.cpu.clock
 
 
 """JUMPS AND CALLS"""

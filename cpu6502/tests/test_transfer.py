@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 
@@ -67,3 +68,31 @@ class TestTYA:
         assert setup_cpu.clock.total_clock_cycles == 2
         assert setup_cpu.ps['negative_flag'] == neg_flag
         assert setup_cpu.ps['zero_flag'] == zero_flag
+
+
+@pytest.mark.usefixtures('setup_cpu')
+class TestTSX:
+
+    @pytest.mark.parametrize('value, zero_flag, neg_flag', [(0x00, True, False),
+                                                            (0xff, False, True),
+                                                            (0x01, False, False)])
+    def test_tsx_implied(self, setup_cpu, value, neg_flag, zero_flag):
+        setup_cpu.sp = value
+        setup_cpu.memory[0x0200] = 0xba  # TSX instruction
+        setup_cpu.execute(1)
+        assert setup_cpu.idx == value
+        assert setup_cpu.clock.total_clock_cycles == 2
+        assert setup_cpu.ps['negative_flag'] == neg_flag
+        assert setup_cpu.ps['zero_flag'] == zero_flag
+
+
+@pytest.mark.usefixtures('setup_cpu')
+class TestTXS:
+
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x10, 0xff])
+    def test_tsx_implied(self, setup_cpu, value):
+        setup_cpu.idx = value
+        setup_cpu.memory[0x0200] = 0x9a  # TXS instruction
+        setup_cpu.execute(1)
+        assert setup_cpu.sp == value
+        assert setup_cpu.clock.total_clock_cycles == 2

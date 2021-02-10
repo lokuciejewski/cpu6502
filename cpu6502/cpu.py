@@ -40,7 +40,7 @@ class CPU(object):
     def __init__(self, speed_mhz=0):
         self.clock = CPU.Clock(speed_mhz=speed_mhz)
         self.pc = ushort()  # Program counter
-        self.sp = ushort()  # Stack pointer
+        self.sp = ubyte()  # Stack pointer
         self.acc = ubyte()  # Accumulator
         self.idx = ubyte()  # Index Register X
         self.idy = ubyte()  # Index Register Y
@@ -79,7 +79,7 @@ class CPU(object):
     def reset(self) -> None:
         self.pc = 0xfffc
         ~self.clock
-        self.sp = 0x01ff
+        self.sp = 0xff
         ~self.clock
         self.acc = 0
         self.idx = 0
@@ -181,9 +181,9 @@ class CPU(object):
 
     def push_byte_on_stack(self, value: ubyte):
         try:
-            if self.sp <= 0x0100:
+            if self.sp <= 0x00:
                 raise IndexError
-            self.memory[self.sp] = value
+            self.memory[self.sp + 0x0100] = value
             ~self.clock
             self.sp -= 1
             # One extra cycle for each push operation according to
@@ -194,12 +194,12 @@ class CPU(object):
 
     def push_word_on_stack(self, value: ushort):
         try:
-            if self.sp <= 0x0101:  # Can't write a word here if there is not enough space on the stack
+            if self.sp <= 0x01:  # Can't write a word here if there is not enough space on the stack
                 raise IndexError
-            self.memory[self.sp] = value
+            self.memory[self.sp + 0x0100] = value
             ~self.clock
             self.sp -= 1
-            self.memory[self.sp] = (value >> 8)
+            self.memory[self.sp + 0x0100] = (value >> 8)
             ~self.clock
             self.sp -= 1
             # One extra cycle for each push operation according to
@@ -212,9 +212,9 @@ class CPU(object):
 
     def pop_byte_from_stack(self) -> hex:
         try:
-            if self.sp >= 0x01ff:
+            if self.sp >= 0xff:
                 raise IndexError
-            data = self.memory[self.sp]
+            data = self.memory[self.sp + 0x0100]
             ~self.clock
             self.sp += 1
             # Two extra cycles for each pop operation according to
@@ -227,14 +227,14 @@ class CPU(object):
 
     def pop_word_from_stack(self) -> hex:
         try:
-            if self.sp >= 0x01fe:  # Can't pop a word from stack if there is only one byte on it
+            if self.sp >= 0xfe:  # Can't pop a word from stack if there is only one byte on it
                 raise IndexError
             ~self.clock
             self.sp += 1
-            data = (self.memory[self.sp] << 8)
+            data = (self.memory[self.sp + 0x0100] << 8)
             ~self.clock
             self.sp += 1
-            data |= self.memory[self.sp]
+            data |= self.memory[self.sp + 0x0100]
             # Two extra cycles for each pop operation according to
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
             ~self.clock
