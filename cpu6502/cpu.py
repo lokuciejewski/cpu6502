@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 
 from numpy import ushort, ubyte
 
@@ -23,6 +24,7 @@ class CPU(object):
             """
             self.cycles = not self.cycles
             self.total_clock_cycles += 1
+            #sleep(0.001)
 
         def __invert__(self):
             """
@@ -66,9 +68,14 @@ class CPU(object):
                f' -> Processor status bits: {self.ps}\n' \
                f' -> 10 next bytes after program counter: {self.memory.get_values(self.pc, 10)}'
 
+    def initialise_memory(self) -> None:
+        self.memory = Memory()
+
     def reset(self) -> None:
         self.pc = 0xfffc
+        ~self.clock
         self.sp = 0x01ff
+        ~self.clock
         self.acc = 0
         self.idx = 0
         self.idy = 0
@@ -76,13 +83,18 @@ class CPU(object):
         # transfer .X to stack
         self.ps['decimal_mode'] = False
         # check for cartridge
+        ~self.clock
         # if .Z == 0 then no cartridge detected
         # set bit 5 (MCM) off, bit 3 (38 cols) off
         # initialise I/O
+        ~self.clock
         # initialise memory
-        self.memory = Memory()
+        self.initialise_memory()
+        ~self.clock
         # set I/O vectors (0x0314...0x0333) to kernel defaults
         # set system IRQ to correct value and start
+        pc_address = self.fetch_word()
+        self.pc = int(pc_address, base=0)
         self.ps['interrupt_disable'] = False
         print('=========== RESET ===========')
 

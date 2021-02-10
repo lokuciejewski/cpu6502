@@ -5,21 +5,30 @@ import pytest
 
 from cpu6502.cpu import CPU
 from cpu6502.instructions import Instructions
+from cpu6502.memory import Memory
 
 
 @pytest.mark.usefixtures('setup_cpu')
 class TestCPU:
 
-    def test_cpu_reset(self):
+    @pytest.mark.parametrize('pc_address_fst, pc_address_snd', [(0x0, 0x1), (0x0, 0x0), (0x0, 0xff), (0xff, 0xff)])
+    def test_cpu_reset(self, pc_address_fst, pc_address_snd):
         cpu = CPU()
-        cpu.reset()
-        assert cpu.pc == 0xfffc
+        memory = Memory()
+        memory[0xfffc] = pc_address_snd
+        memory[0xfffd] = pc_address_fst
+        with patch.object(CPU, 'initialise_memory'):
+            cpu.memory = memory
+            cpu.reset()
+        pc_address = pc_address_snd + (pc_address_fst << 8)
+        assert cpu.pc == pc_address
         assert cpu.sp == 0x01ff
         assert cpu.acc == 0x0
         assert cpu.idx == 0x0
         assert cpu.idy == 0x0
         assert not cpu.ps['interrupt_disable']
         assert not cpu.ps['decimal_mode']
+        assert cpu.clock.total_clock_cycles == 7
 
     @pytest.mark.parametrize('num_of_instructions', [0, 1, 2, 5])
     def test_cpu_execute(self, setup_cpu, num_of_instructions):

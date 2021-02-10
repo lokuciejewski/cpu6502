@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 import pytest
 
 from cpu6502.cpu import CPU
+from cpu6502.memory import Memory
 
 
 @pytest.fixture()
@@ -10,10 +13,11 @@ def setup_cpu() -> CPU:
     :return: CPU: 6502 cpu object
     """
     setup_cpu = CPU()
-    setup_cpu.reset()
-    setup_cpu.memory[0xfffc] = 0x4c
-    setup_cpu.memory[0xfffd] = 0x00
-    setup_cpu.memory[0xfffe] = 0x02  # JMP 0x0200
-    setup_cpu.execute(1)
-    setup_cpu.clock.total_clock_cycles = 0
-    return setup_cpu
+    memory = Memory()
+    memory[0xfffc] = 0x00
+    memory[0xfffd] = 0x02  # All test instructions should start at 0x0200
+    with patch.object(CPU, 'initialise_memory') as mocked_init:
+        setup_cpu.memory = memory
+        setup_cpu.reset()
+        setup_cpu.clock.total_clock_cycles = 0  # Only for testing purposes
+        return setup_cpu
