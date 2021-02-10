@@ -1,7 +1,7 @@
 from cpu6502 import cpu
 
 if __name__ == '__main__':
-    cpu = cpu.CPU()
+    cpu = cpu.CPU(speed_mhz=1)
     cpu.reset()
     print(cpu)
     cpu.memory[0xfffc] = 0x4c

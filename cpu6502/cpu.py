@@ -13,9 +13,13 @@ class CPU(object):
         Internal class used for storing the remaining cycles of the operation
         """
 
-        def __init__(self):
+        def __init__(self, speed_mhz=0):
             self.cycles = True
             self.total_clock_cycles = 0
+            if speed_mhz > 0:
+                self.speed = 1/(1000 * speed_mhz)
+            else:
+                self.speed = 0
 
         def clock(self) -> None:
             """
@@ -24,7 +28,7 @@ class CPU(object):
             """
             self.cycles = not self.cycles
             self.total_clock_cycles += 1
-            #sleep(0.001)
+            sleep(self.speed)
 
         def __invert__(self):
             """
@@ -33,8 +37,8 @@ class CPU(object):
             """
             self.clock()
 
-    def __init__(self):
-        self.clock = CPU.Clock()
+    def __init__(self, speed_mhz=0):
+        self.clock = CPU.Clock(speed_mhz=speed_mhz)
         self.pc = ushort()  # Program counter
         self.sp = ushort()  # Stack pointer
         self.acc = ubyte()  # Accumulator
@@ -59,7 +63,8 @@ class CPU(object):
                f'||--- CPU 6502 emulator ---||\n' \
                f'=============================\n' \
                f' -> Clock state = {"H" if self.clock.cycles else "L"};' \
-               f' Total clock cycles: {self.clock.total_clock_cycles}\n' \
+               f' Total clock cycles: {self.clock.total_clock_cycles};' \
+               f' Clock speed: {self.clock.speed * 1000 if self.clock.speed > 0 else "unlimited"} MHz\n' \
                f' -> CPU registers:\n' \
                f'\t -> Program counter: {hex(self.pc)}\n' \
                f'\t -> Stack pointer: {hex(self.sp)}\n' \

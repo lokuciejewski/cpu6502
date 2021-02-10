@@ -30,13 +30,14 @@ class Instructions:
         """
         with open(filepath) as file:
             contents = json.load(file)
+            not_supported = set()
             for instruction in contents:
                 try:
                     opcode = f'0x{instruction["opcode"].strip("$").lower()}'
                     self.opcodes[opcode] = self.internal_assignment[instruction['name']]
                 except KeyError:
-                    pass
-                    # print(f'Instruction not supported: {instruction["name"]}')
+                    not_supported.add(instruction['name'])
+        print(f'Unsupported instructions ({len(not_supported)}): {not_supported}')
 
     def execute(self, opcode: str):
         instruction = self.opcodes[opcode](self.cpu)
