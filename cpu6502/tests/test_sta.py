@@ -27,7 +27,7 @@ class TestSTA:
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x01, 0xfe), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
     def test_sta_absolute(self, setup_cpu, value, address_snd, address_fst):
         setup_cpu.acc = value
         setup_cpu.memory[0x0200] = 0x8d  # STA instruction
@@ -39,7 +39,7 @@ class TestSTA:
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x01, 0xfe), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
     @pytest.mark.parametrize('idx', [0x00, 0x01, 0x0f, 0x0e])
     def test_sta_absolute_x(self, setup_cpu, value, address_snd, address_fst, idx):
         setup_cpu.acc = value
@@ -53,7 +53,7 @@ class TestSTA:
         assert setup_cpu.clock.total_clock_cycles == 5
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x01, 0xfe), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
     @pytest.mark.parametrize('idy', [0x00, 0x01, 0x0f, 0x0e])
     def test_sta_absolute_y(self, setup_cpu, value, address_snd, address_fst, idy):
         setup_cpu.acc = value

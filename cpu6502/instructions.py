@@ -145,6 +145,8 @@ class LDA(AbstractInstruction):
     def indirect_indexed(self):
         zp_address = int(self.cpu.read_byte(self.cpu.pc), base=0)
         address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
+        if (address >> 8) != ((address + self.cpu.idy) >> 8):
+            ~self.cpu.clock
         self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
 
@@ -290,15 +292,95 @@ class STA(AbstractInstruction):
 
     def __init__(self, cpu):
         super().__init__(cpu)
+        self.opcodes = {
+            '0x85': self.zero_page,
+            '0x95': self.zero_page_x,
+            '0x8d': self.absolute,
+            '0x9d': self.absolute_x,
+            '0x99': self.absolute_y,
+            '0x81': self.indexed_indirect,
+            '0x91': self.indirect_indexed
+        }
+
+    def zero_page(self):
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.write_byte(address=zp_address, value=self.cpu.acc)
+
+    def zero_page_x(self):
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.write_byte(address=zp_address + self.cpu.idx, value=self.cpu.acc)
+        ~self.cpu.clock
+
+    def absolute(self):
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.write_byte(address=target_address, value=self.cpu.acc)
+
+    def absolute_x(self):
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.write_byte(address=target_address + self.cpu.idx, value=self.cpu.acc)
+        ~self.cpu.clock
+
+    def absolute_y(self):
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.write_byte(address=target_address + self.cpu.idy, value=self.cpu.acc)
+        ~self.cpu.clock
+
+    def indexed_indirect(self):
+        zp_address = int(self.cpu.read_byte(self.cpu.pc), base=0) + self.cpu.idx
+        ~self.cpu.clock
+        address = int(self.cpu.read_word(zp_address), base=0)
+        self.cpu.write_byte(address=address, value=self.cpu.acc)
+
+    def indirect_indexed(self):
+        zp_address = int(self.cpu.read_byte(self.cpu.pc), base=0)
+        address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
+        ~self.cpu.clock
+        self.cpu.write_byte(address=address, value=self.cpu.acc)
 
 
 class STX(AbstractInstruction):
 
     def __init__(self, cpu):
         super().__init__(cpu)
+        self.opcodes = {
+            '0x86': self.zero_page,
+            '0x96': self.zero_page_y,
+            '0x8e': self.absolute
+        }
+
+    def zero_page(self):
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.write_byte(address=zp_address, value=self.cpu.idx)
+
+    def zero_page_y(self):
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.write_byte(address=zp_address + self.cpu.idy, value=self.cpu.idx)
+        ~self.cpu.clock
+
+    def absolute(self):
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.write_byte(address=target_address, value=self.cpu.idx)
 
 
 class STY(AbstractInstruction):
 
     def __init__(self, cpu):
         super().__init__(cpu)
+        self.opcodes = {
+            '0x84': self.zero_page,
+            '0x94': self.zero_page_x,
+            '0x8c': self.absolute
+        }
+
+    def zero_page(self):
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.write_byte(address=zp_address, value=self.cpu.idy)
+
+    def zero_page_y(self):
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        self.cpu.write_byte(address=zp_address + self.cpu.idx, value=self.cpu.idx)
+        ~self.cpu.clock
+
+    def absolute(self):
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.write_byte(address=target_address, value=self.cpu.idy)

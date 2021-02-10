@@ -160,14 +160,37 @@ class TestLDA:
         assert setup_cpu.ps['negative_flag'] == neg_flag
         assert setup_cpu.ps['zero_flag'] == zero_flag
 
-    @pytest.mark.parametrize('address', [0x10, 0xff, 0x00, 0x01])
-    @pytest.mark.parametrize('idy', [0x10, 0xff, 0x00, 0x01])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x20, 0x01), (0x2e, 0xfe), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('address', [0x01, 0x00, 0xfe, 0xff])
+    @pytest.mark.parametrize('idy', [0xfe, 0xff])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x20, 0xef), (0x2e, 0xfe), (0xfa, 0xff)])
     @pytest.mark.parametrize('value, zero_flag, neg_flag', [(0x1, False, False),
                                                             (0x20, False, False),
                                                             (0xff, False, True),
                                                             (0x0, True, False)])
-    def test_lda_indirect_indexed(self, setup_cpu, address, idy, address_fst, address_snd, value, zero_flag, neg_flag):
+    def test_lda_indirect_indexed_page_crossed(self, setup_cpu, address, idy, address_fst, address_snd, value,
+                                               zero_flag, neg_flag):
+        setup_cpu.idy = idy
+        setup_cpu.memory[0x0200] = 0xb1  # LDA instruction
+        setup_cpu.memory[0x201] = address
+        setup_cpu.memory[address] = address_snd
+        setup_cpu.memory[address + 1] = address_fst
+        address = address_snd + (address_fst << 8) + setup_cpu.idy  # Little endian -> least significant byte first
+        setup_cpu.memory[address] = value
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == value
+        assert setup_cpu.clock.total_clock_cycles == 6
+        assert setup_cpu.ps['negative_flag'] == neg_flag
+        assert setup_cpu.ps['zero_flag'] == zero_flag
+
+    @pytest.mark.parametrize('address', [0x01, 0x00, 0xfe, 0xff])
+    @pytest.mark.parametrize('idy', [0x0f, 0x00, 0x01])
+    @pytest.mark.parametrize('address_fst, address_snd', [(0x20, 0x01), (0x2e, 0x10), (0xfa, 0xa1)])
+    @pytest.mark.parametrize('value, zero_flag, neg_flag', [(0x1, False, False),
+                                                            (0x20, False, False),
+                                                            (0xff, False, True),
+                                                            (0x0, True, False)])
+    def test_lda_indirect_indexed_no_page_crossed(self, setup_cpu, address, idy, address_fst, address_snd, value,
+                                                  zero_flag, neg_flag):
         setup_cpu.idy = idy
         setup_cpu.memory[0x0200] = 0xb1  # LDA instruction
         setup_cpu.memory[0x201] = address
