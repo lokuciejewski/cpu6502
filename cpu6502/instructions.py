@@ -75,18 +75,7 @@ class AbstractInstruction:
         pass
 
 
-class RES(AbstractInstruction):
-
-    def __init__(self, cpu):
-        super().__init__(cpu)
-        self.opcodes = {
-            '0xbb': self.implied
-        }
-
-    def implied(self):
-        ~self.cpu.clock
-        ~self.cpu.clock
-        self.cpu.reset()
+"""LOAD/STORE instructions"""
 
 
 class LDA(AbstractInstruction):
@@ -148,53 +137,6 @@ class LDA(AbstractInstruction):
         if (address >> 8) != ((address + self.cpu.idy) >> 8):
             ~self.cpu.clock
         self.cpu.acc = int(self.cpu.read_byte(address), base=0)
-
-
-class JSR(AbstractInstruction):
-
-    def __init__(self, cpu):
-        super().__init__(cpu)
-        self.opcodes = {
-            '0x20': self.absolute
-        }
-
-    def absolute(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
-        self.cpu.push_word_on_stack(self.cpu.pc - 1)
-        self.cpu.pc = target_address
-
-
-class RTS(AbstractInstruction):
-
-    def __init__(self, cpu):
-        super().__init__(cpu)
-        self.opcodes = {
-            '0x60': self.implied
-        }
-
-    def implied(self):
-        return_point = self.cpu.pop_word_from_stack()
-        self.cpu.pc = int(return_point, base=0) + 1  # To compensate for 1 pc increment
-        ~self.cpu.clock
-
-
-class JMP(AbstractInstruction):
-
-    def __init__(self, cpu):
-        super().__init__(cpu)
-        self.opcodes = {
-            '0x4c': self.absolute,
-            '0x6c': self.indirect
-        }
-
-    def absolute(self):
-        target_address = self.cpu.read_word(self.cpu.pc)
-        self.cpu.pc = int(target_address, base=0)
-
-    def indirect(self):
-        address = int(self.cpu.read_word(self.cpu.pc), base=0)
-        target_address = self.cpu.read_word(address)
-        self.cpu.pc = int(target_address, base=0)
 
 
 class LDX(AbstractInstruction):
@@ -273,19 +215,6 @@ class LDY(AbstractInstruction):
         if (address >> 8) != ((address + self.cpu.idx) >> 8):
             ~self.cpu.clock
         self.cpu.idy = int(self.cpu.read_byte(address + self.cpu.idx), base=0)
-
-
-class NOP(AbstractInstruction):
-
-    def __init__(self, cpu):
-        super().__init__(cpu)
-        self.opcodes = {
-            '0xea': self.implied
-        }
-
-    def implied(self):
-        self.cpu.pc += 1
-        ~self.cpu.clock
 
 
 class STA(AbstractInstruction):
@@ -384,3 +313,107 @@ class STY(AbstractInstruction):
     def absolute(self):
         target_address = int(self.cpu.fetch_word(), base=0)
         self.cpu.write_byte(address=target_address, value=self.cpu.idy)
+
+
+"""REGISTER TRANSFER instructions"""
+
+
+class TAX(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+
+
+class TAY(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+
+
+class TXA(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+
+
+class TYA(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+
+
+"""JUMPS AND CALLS"""
+
+
+class JMP(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x4c': self.absolute,
+            '0x6c': self.indirect
+        }
+
+    def absolute(self):
+        target_address = self.cpu.read_word(self.cpu.pc)
+        self.cpu.pc = int(target_address, base=0)
+
+    def indirect(self):
+        address = int(self.cpu.read_word(self.cpu.pc), base=0)
+        target_address = self.cpu.read_word(address)
+        self.cpu.pc = int(target_address, base=0)
+
+
+class JSR(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x20': self.absolute
+        }
+
+    def absolute(self):
+        target_address = int(self.cpu.fetch_word(), base=0)
+        self.cpu.push_word_on_stack(self.cpu.pc - 1)
+        self.cpu.pc = target_address
+
+
+class RTS(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x60': self.implied
+        }
+
+    def implied(self):
+        return_point = self.cpu.pop_word_from_stack()
+        self.cpu.pc = int(return_point, base=0) + 1  # To compensate for 1 pc increment
+        ~self.cpu.clock
+
+
+class NOP(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xea': self.implied
+        }
+
+    def implied(self):
+        self.cpu.pc += 1
+        ~self.cpu.clock
+
+
+class RES(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xbb': self.implied
+        }
+
+    def implied(self):
+        ~self.cpu.clock
+        ~self.cpu.clock
+        self.cpu.reset()

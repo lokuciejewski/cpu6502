@@ -71,3 +71,29 @@ class TestSTA:
 
     def test_sta_indirect_indexed(self, setup_cpu):
         pass
+
+
+@pytest.mark.usefixtures('setup_cpu')
+class TestSTX:
+
+    def test_stx_zero_page(self, setup_cpu):
+        pass
+
+    def test_stx_zero_page_y(self, setup_cpu):
+        pass
+
+    def test_stx_absolute(self, setup_cpu):
+        pass
+
+
+@pytest.mark.usefixtures('setup_cpu')
+class TestSTY:
+
+    def test_sty_zero_page(self, setup_cpu):
+        pass
+
+    def test_sty_zero_page_y(self, setup_cpu):
+        pass
+
+    def test_sty_absolute(self, setup_cpu):
+        pass
