@@ -305,9 +305,9 @@ class STY(AbstractInstruction):
         zp_address = int(self.cpu.fetch_byte(), base=0)
         self.cpu.write_byte(address=zp_address, value=self.cpu.idy)
 
-    def zero_page_y(self):
+    def zero_page_x(self):
         zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.write_byte(address=zp_address + self.cpu.idx, value=self.cpu.idx)
+        self.cpu.write_byte(address=zp_address + self.cpu.idx, value=self.cpu.idy)
         ~self.cpu.clock
 
     def absolute(self):

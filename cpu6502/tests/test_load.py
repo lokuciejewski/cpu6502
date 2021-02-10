@@ -205,7 +205,6 @@ class TestLDA:
         assert setup_cpu.ps['zero_flag'] == zero_flag
 
 
-
 @pytest.mark.usefixtures('setup_cpu')
 class TestLDX:
 
