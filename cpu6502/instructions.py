@@ -27,6 +27,11 @@ class Instructions:
             'PHP': PHP,
             'PLA': PLA,
             'PLP': PLP,
+            # LOGICAL OPERATIONS
+            'AND': BIT,
+            'EOR': EOR,
+            'ORA': ORA,
+            'BIT': BIT,
             # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
@@ -470,6 +475,145 @@ class PLP(AbstractInstruction):
         self.opcodes = {
             '0x28': self.implied
         }
+
+
+"""LOGICAL OPERATIONS"""
+
+
+class AND(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x29': self.immediate,
+            '0x25': self.zero_page,
+            '0x35': self.zero_page_x,
+            '0x2d': self.absolute,
+            '0x3d': self.absolute_x,
+            '0x39': self.absolute_y,
+            '0x21': self.indexed_indirect,
+            '0x31': self.indirect_indexed
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def zero_page_x(self):
+        pass
+
+    def absolute(self):
+        pass
+
+    def absolute_x(self):
+        pass
+
+    def absolute_y(self):
+        pass
+
+    def indexed_indirect(self):
+        pass
+
+    def indirect_indexed(self):
+        pass
+
+
+class EOR(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x49': self.immediate,
+            '0x45': self.zero_page,
+            '0x55': self.zero_page_x,
+            '0x4d': self.absolute,
+            '0x5d': self.absolute_x,
+            '0x59': self.absolute_y,
+            '0x41': self.indexed_indirect,
+            '0x51': self.indirect_indexed
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def zero_page_x(self):
+        pass
+
+    def absolute(self):
+        pass
+
+    def absolute_x(self):
+        pass
+
+    def absolute_y(self):
+        pass
+
+    def indexed_indirect(self):
+        pass
+
+    def indirect_indexed(self):
+        pass
+
+
+class ORA(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x09': self.immediate,
+            '0x05': self.zero_page,
+            '0x15': self.zero_page_x,
+            '0x0d': self.absolute,
+            '0x1d': self.absolute_x,
+            '0x19': self.absolute_y,
+            '0x01': self.indexed_indirect,
+            '0x11': self.indirect_indexed
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def zero_page_x(self):
+        pass
+
+    def absolute(self):
+        pass
+
+    def absolute_x(self):
+        pass
+
+    def absolute_y(self):
+        pass
+
+    def indexed_indirect(self):
+        pass
+
+    def indirect_indexed(self):
+        pass
+
+
+class BIT(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x24': self.zero_page,
+            '0x2c': self.absolute
+        }
+
+    def zero_page(self):
+        pass
+
+    def absolute(self):
+        pass
 
 
 """JUMPS AND CALLS"""
