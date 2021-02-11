@@ -34,6 +34,12 @@ class Instructions:
             'EOR': EOR,
             'ORA': ORA,
             'BIT': BIT,
+            # ARITHMETIC OPERATIONS
+            'ADC': CMP,
+            'SBC': SBC,
+            'CMP': CMP,
+            'CPX': CPX,
+            'CPY': CPY,
             # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
@@ -700,6 +706,169 @@ class BIT(AbstractInstruction):
         self.cpu.ps['zero_flag'] = ((value & self.cpu.acc) == 0)
         self.cpu.ps['overflow_flag'] = (value & 0b01000000)
         self.cpu.ps['negative_flag'] = (value & 0b10000000 != 0)
+
+
+"""ARITHMETIC OPERATIONS"""
+
+
+class ADC(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0x69': self.immediate,
+            '0x65': self.zero_page,
+            '0x75': self.zero_page_x,
+            '0x6d': self.absolute,
+            '0x7d': self.absolute_x,
+            '0x79': self.absolute_y,
+            '0x61': self.indirect_indexed,
+            '0x71': self.indexed_indirect
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def zero_page_x(self):
+        pass
+
+    def absolute(self):
+        pass
+
+    def absolute_x(self):
+        pass
+
+    def absolute_y(self):
+        pass
+
+    def indexed_indirect(self):
+        pass
+
+    def indirect_indexed(self):
+        pass
+
+
+class SBC(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xe9': self.immediate,
+            '0xe5': self.zero_page,
+            '0xf5': self.zero_page_x,
+            '0xed': self.absolute,
+            '0xfd': self.absolute_x,
+            '0xf9': self.absolute_y,
+            '0xe1': self.indirect_indexed,
+            '0xf1': self.indexed_indirect
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def zero_page_x(self):
+        pass
+
+    def absolute(self):
+        pass
+
+    def absolute_x(self):
+        pass
+
+    def absolute_y(self):
+        pass
+
+    def indexed_indirect(self):
+        pass
+
+    def indirect_indexed(self):
+        pass
+
+
+class CMP(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xc9': self.immediate,
+            '0xc5': self.zero_page,
+            '0xd5': self.zero_page_x,
+            '0xcd': self.absolute,
+            '0xdd': self.absolute_x,
+            '0xd9': self.absolute_y,
+            '0xc1': self.indirect_indexed,
+            '0xd1': self.indexed_indirect
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def zero_page_x(self):
+        pass
+
+    def absolute(self):
+        pass
+
+    def absolute_x(self):
+        pass
+
+    def absolute_y(self):
+        pass
+
+    def indexed_indirect(self):
+        pass
+
+    def indirect_indexed(self):
+        pass
+
+
+class CPX(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xe0': self.immediate,
+            '0xe4': self.zero_page,
+            '0xec': self.absolute
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def absolute(self):
+        pass
+
+
+class CPY(AbstractInstruction):
+
+    def __init__(self, cpu):
+        super().__init__(cpu)
+        self.opcodes = {
+            '0xc0': self.immediate,
+            '0xc4': self.zero_page,
+            '0xcc': self.absolute
+        }
+
+    def immediate(self):
+        pass
+
+    def zero_page(self):
+        pass
+
+    def absolute(self):
+        pass
 
 
 """JUMPS AND CALLS"""
