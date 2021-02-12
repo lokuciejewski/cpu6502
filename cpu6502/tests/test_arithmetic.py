@@ -19,7 +19,7 @@ class TestADC:
         expected_negative_flag = (expected_value & 0b10000000) != 0
         expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
         """
-        x       y       r
+        x       y       r        Overflow
         1.... + 1.... = 0.... -> True
         0.... + 0.... = 1.... -> True
         0.... + 1.... = 0.... -> False
