@@ -1,3 +1,5 @@
 .idea
 .pytest_cache
 cpu6502/tests/.pytest_cache
+__pycache__
+cpu6502/__pycache__
