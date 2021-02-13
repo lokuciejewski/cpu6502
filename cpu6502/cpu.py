@@ -1,3 +1,4 @@
+import os
 import sys
 from time import sleep
 
@@ -57,7 +58,7 @@ class CPU(object):
         }
         self.memory = None
         self.io = None
-        self.instructions = Instructions(self, filepath=r'C:\Users\grodo\Desktop\6502\6502_instructions.json')
+        self.instructions = Instructions(self, filepath=os.path.join(os.path.pardir, 'cpu6502/6502_instructions.json'))
 
     def __str__(self):
         return f'=============================\n' \
