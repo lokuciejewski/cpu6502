@@ -35,6 +35,6 @@ class Memory:
         :param n: int: Number of values to be added to the list
         :return: list: List of all values on stack
         """
-        return [hex(val) for val in self.data[0x0100: 0x0100 + n]]
+        return [hex(val) for val in self.data[0x01ff - n: 0x01ff]]
 
 

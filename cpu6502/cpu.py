@@ -5,6 +5,7 @@ from time import sleep
 import numpy as np
 from numpy import ushort, ubyte
 
+import cpu6502
 from cpu6502.instructions import Instructions
 from cpu6502.memory import Memory
 
@@ -58,7 +59,8 @@ class CPU(object):
         }
         self.memory = None
         self.io = None
-        self.instructions = Instructions(self, filepath=os.path.join(os.path.pardir, 'cpu6502/6502_instructions.json'))
+        self.instructions = Instructions(self, filepath=os.path.join(os.path.dirname(os.path.abspath(cpu6502.__file__)),
+                                                                     '6502_instructions.json'))
 
     def __str__(self):
         return f'=============================\n' \

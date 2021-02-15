@@ -32,18 +32,16 @@ class TestJMP:
 @pytest.mark.usefixtures('setup_cpu')
 class TestJSR:
 
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x0, 0x1), (0x20, 0x1), (0xff, 0xfd), (0xff, 0xfe)])
     @pytest.mark.parametrize('start_address_fst, start_address_snd',
                              [(0x0, 0x3), (0x20, 0x1), (0xff, 0xfd), (0xff, 0xfc)])
-    def test_jsr_absolute(self, setup_cpu, address_fst, address_snd, start_address_fst, start_address_snd):
+    def test_jsr_absolute(self, setup_cpu, start_address_fst, start_address_snd):
         start_address = start_address_snd + (start_address_fst << 8)
         setup_cpu.pc = start_address
         setup_cpu.memory[start_address] = 0x20  # JSR instruction
-        setup_cpu.memory[start_address + 1] = address_snd
-        setup_cpu.memory[start_address + 2] = address_fst
+        setup_cpu.memory[start_address + 1] = 0xaa
+        setup_cpu.memory[start_address + 2] = 0x23
         setup_cpu.execute(1)
-        address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
-        assert setup_cpu.pc == address
+        assert setup_cpu.pc == 0x23aa
         stored_address = setup_cpu.memory[setup_cpu.sp + 0x0102] + (setup_cpu.memory[setup_cpu.sp + 0x0101] << 8)
         assert stored_address == start_address + 2  # To compensate for the word reading
         assert setup_cpu.clock.total_clock_cycles == 6
@@ -52,15 +50,13 @@ class TestJSR:
 @pytest.mark.usefixtures('setup_cpu')
 class TestRTS:
 
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x0, 0x6), (0x20, 0x1), (0xff, 0xfd), (0xff, 0xfe)])
     @pytest.mark.parametrize('sp', [0x01, 0xfd, 0xaa, 0xfd])
-    def test_rts_implied(self, setup_cpu, address_fst, address_snd, sp):
+    def test_rts_implied(self, setup_cpu, sp):
         setup_cpu.memory[0x200] = 0x60
         setup_cpu.sp = sp
-        setup_cpu.memory[setup_cpu.sp + 0x0102] = address_snd
-        setup_cpu.memory[setup_cpu.sp + 0x0101] = address_fst
-        target_address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
+        setup_cpu.memory[setup_cpu.sp + 0x0102] = 0xcd
+        setup_cpu.memory[setup_cpu.sp + 0x0101] = 0xff
         setup_cpu.execute(1)
-        assert setup_cpu.pc == target_address + 1
+        assert setup_cpu.pc == 0xffcd + 1
         assert setup_cpu.sp == sp + 2
         assert setup_cpu.clock.total_clock_cycles == 6

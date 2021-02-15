@@ -6,98 +6,79 @@ import pytest
 class TestSTA:
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x0, 0x1, 0xfe, 0xff])
-    def test_sta_zero_page(self, setup_cpu, value, zp_address):
+    def test_sta_zero_page(self, setup_cpu, value):
         setup_cpu.acc = value
         setup_cpu.memory[0x0200] = 0x85  # STA instruction
-        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[0x0201] = 0x10
         setup_cpu.execute(1)
-        assert setup_cpu.memory[zp_address] == value
+        assert setup_cpu.memory[0x10] == value
         assert setup_cpu.clock.total_clock_cycles == 3
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x0, 0x1, 0xf0, 0xf0])
-    @pytest.mark.parametrize('idx', [0x00, 0x01, 0x0f, 0x0e])
-    def test_sta_zero_page_x(self, setup_cpu, value, zp_address, idx):
+    def test_sta_zero_page_x(self, setup_cpu, value):
         setup_cpu.acc = value
-        setup_cpu.idx = idx
+        setup_cpu.idx = 0x51
         setup_cpu.memory[0x0200] = 0x95  # STA instruction
-        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[0x0201] = 0x25
         setup_cpu.execute(1)
-        assert setup_cpu.memory[np.ubyte(zp_address + idx)] == value
+        assert setup_cpu.memory[0x25 + 0x51] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    def test_sta_absolute(self, setup_cpu, value, address_snd, address_fst):
+    def test_sta_absolute(self, setup_cpu, value):
         setup_cpu.acc = value
         setup_cpu.memory[0x0200] = 0x8d  # STA instruction
-        setup_cpu.memory[0x0201] = address_snd
-        setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.memory[0x0201] = 0x88
+        setup_cpu.memory[0x0202] = 0x77
         setup_cpu.execute(1)
-        address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
-        assert setup_cpu.memory[address] == value
+        assert setup_cpu.memory[0x7788] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    @pytest.mark.parametrize('idx', [0x00, 0x01, 0x0f, 0x0e])
-    def test_sta_absolute_x(self, setup_cpu, value, address_snd, address_fst, idx):
+    def test_sta_absolute_x(self, setup_cpu, value,):
         setup_cpu.acc = value
-        setup_cpu.idx = idx
+        setup_cpu.idx = 0x20
         setup_cpu.memory[0x0200] = 0x9d  # STA instruction
-        setup_cpu.memory[0x0201] = address_snd
-        setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.memory[0x0201] = 0x77
+        setup_cpu.memory[0x0202] = 0x66
         setup_cpu.execute(1)
-        address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
-        assert setup_cpu.memory[address + idx] == value
+        assert setup_cpu.memory[0x6677 + 0x20] == value
         assert setup_cpu.clock.total_clock_cycles == 5
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    @pytest.mark.parametrize('idy', [0x00, 0x01, 0x0f, 0x0e])
-    def test_sta_absolute_y(self, setup_cpu, value, address_snd, address_fst, idy):
+    def test_sta_absolute_y(self, setup_cpu, value):
         setup_cpu.acc = value
-        setup_cpu.idy = idy
+        setup_cpu.idy = 0x20
         setup_cpu.memory[0x0200] = 0x99  # STA instruction
-        setup_cpu.memory[0x0201] = address_snd
-        setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.memory[0x0201] = 0x77
+        setup_cpu.memory[0x0202] = 0x66
         setup_cpu.execute(1)
-        address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
-        assert setup_cpu.memory[address + idy] == value
+        assert setup_cpu.memory[0x6677 + 0x20] == value
         assert setup_cpu.clock.total_clock_cycles == 5
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x1, 0x0, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    @pytest.mark.parametrize('idx', [0x00, 0x01, 0x0f, 0x0e])
-    def test_sta_indexed_indirect(self, setup_cpu, value, address_snd, address_fst, idx, zp_address):
+    def test_sta_indexed_indirect(self, setup_cpu, value):
         setup_cpu.memory[0x0200] = 0x81  # STA instruction
-        setup_cpu.memory[0x0201] = zp_address
-        setup_cpu.idx = idx
+        setup_cpu.memory[0x0201] = 0x25
+        setup_cpu.idx = 0x21
         setup_cpu.acc = value
-        address = np.ubyte(zp_address + setup_cpu.idx)
-        setup_cpu.memory[address] = address_snd
-        setup_cpu.memory[address + 1] = address_fst
-        target_address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
+        address = 0x25 + 0x21
+        setup_cpu.memory[address] = 0x66
+        setup_cpu.memory[address + 1] = 0x55
         setup_cpu.execute(1)
-        assert setup_cpu.memory[target_address] == value
+        assert setup_cpu.memory[0x5566] == value
         assert setup_cpu.clock.total_clock_cycles == 6
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x1, 0x0, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    @pytest.mark.parametrize('idy', [0x00, 0x01, 0x0f, 0x0e])
-    def test_sta_indirect_indexed(self, setup_cpu, value, address_snd, address_fst, idy, zp_address):
+    def test_sta_indirect_indexed(self, setup_cpu, value):
         setup_cpu.memory[0x0200] = 0x91  # STA instruction
-        setup_cpu.memory[0x0201] = zp_address
-        setup_cpu.idy = idy
+        setup_cpu.memory[0x0201] = 0x25
+        setup_cpu.idy = 0x21
         setup_cpu.acc = value
-        setup_cpu.memory[zp_address] = address_snd
-        setup_cpu.memory[zp_address + 1] = address_fst
-        target_address = address_snd + (address_fst << 8) + setup_cpu.idy
+        setup_cpu.memory[0x25] = 0x44
+        setup_cpu.memory[0x25 + 1] = 0x55
         setup_cpu.execute(1)
-        assert setup_cpu.memory[target_address] == value
+        assert setup_cpu.memory[0x5544 + 0x21] == value
         assert setup_cpu.clock.total_clock_cycles == 6
 
 
@@ -105,37 +86,32 @@ class TestSTA:
 class TestSTX:
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x0, 0x1, 0xfe, 0xff])
-    def test_stx_zero_page(self, setup_cpu, value, zp_address):
+    def test_stx_zero_page(self, setup_cpu, value):
         setup_cpu.idx = value
         setup_cpu.memory[0x0200] = 0x86  # STX instruction
-        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[0x0201] = 0x56
         setup_cpu.execute(1)
-        assert setup_cpu.memory[zp_address] == value
+        assert setup_cpu.memory[0x56] == value
         assert setup_cpu.clock.total_clock_cycles == 3
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x0, 0x1, 0xf0, 0xf0])
-    @pytest.mark.parametrize('idy', [0x00, 0x01, 0x0f, 0x0e])
-    def test_stx_zero_page_y(self, setup_cpu, value, zp_address, idy):
+    def test_stx_zero_page_y(self, setup_cpu, value):
         setup_cpu.idx = value
-        setup_cpu.idy = idy
+        setup_cpu.idy = 0x56
         setup_cpu.memory[0x0200] = 0x96  # STX instruction
-        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[0x0201] = 0x27
         setup_cpu.execute(1)
-        assert setup_cpu.memory[zp_address + idy] == value
+        assert setup_cpu.memory[0x27 + 0x56] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    def test_stx_absolute(self, setup_cpu, value, address_snd, address_fst):
+    def test_stx_absolute(self, setup_cpu, value):
         setup_cpu.idx = value
         setup_cpu.memory[0x0200] = 0x8e  # STX instruction
-        setup_cpu.memory[0x0201] = address_snd
-        setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.memory[0x0201] = 0x33
+        setup_cpu.memory[0x0202] = 0x11
         setup_cpu.execute(1)
-        address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
-        assert setup_cpu.memory[address] == value
+        assert setup_cpu.memory[0x1133] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
 
@@ -143,35 +119,30 @@ class TestSTX:
 class TestSTY:
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x0, 0x1, 0xfe, 0xff])
-    def test_sty_zero_page(self, setup_cpu, value, zp_address):
+    def test_sty_zero_page(self, setup_cpu, value):
         setup_cpu.idy = value
         setup_cpu.memory[0x0200] = 0x84  # STY instruction
-        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[0x0201] = 0x12
         setup_cpu.execute(1)
-        assert setup_cpu.memory[zp_address] == value
+        assert setup_cpu.memory[0x12] == value
         assert setup_cpu.clock.total_clock_cycles == 3
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('zp_address', [0x0, 0x1, 0xf0, 0xf0])
-    @pytest.mark.parametrize('idx', [0x00, 0x01, 0x0f, 0x0e])
-    def test_sty_zero_page_x(self, setup_cpu, value, zp_address, idx):
+    def test_sty_zero_page_x(self, setup_cpu, value):
         setup_cpu.idy = value
-        setup_cpu.idx = idx
+        setup_cpu.idx = 0x69
         setup_cpu.memory[0x0200] = 0x94  # STY instruction
-        setup_cpu.memory[0x0201] = zp_address
+        setup_cpu.memory[0x0201] = 0x93
         setup_cpu.execute(1)
-        assert setup_cpu.memory[np.ubyte(zp_address + idx)] == value
+        assert setup_cpu.memory[0x93 + 0x69] == value
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('value', [0x0, 0x1, 0x20, 0xff])
-    @pytest.mark.parametrize('address_fst, address_snd', [(0x00, 0x01), (0x02, 0xee), (0xfa, 0xa1)])
-    def test_sty_absolute(self, setup_cpu, value, address_snd, address_fst):
+    def test_sty_absolute(self, setup_cpu, value):
         setup_cpu.idy = value
         setup_cpu.memory[0x0200] = 0x8c  # STY instruction
-        setup_cpu.memory[0x0201] = address_snd
-        setup_cpu.memory[0x0202] = address_fst
+        setup_cpu.memory[0x0201] = 0x81
+        setup_cpu.memory[0x0202] = 0x92
         setup_cpu.execute(1)
-        address = address_snd + (address_fst << 8)  # Little endian -> least significant byte first
-        assert setup_cpu.memory[address] == value
+        assert setup_cpu.memory[0x9281] == value
         assert setup_cpu.clock.total_clock_cycles == 4

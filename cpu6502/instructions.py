@@ -110,7 +110,8 @@ class AbstractInstruction:
         return int(self.cpu.fetch_byte(), base=0)
 
     def zero_page(self):
-        return int(self.cpu.fetch_byte(), base=0)
+        zp_address = int(self.cpu.fetch_byte(), base=0)
+        return zp_address
 
     def zero_page_x(self):
         zp_address = int(self.cpu.fetch_byte(), base=0)
@@ -121,32 +122,33 @@ class AbstractInstruction:
         return np.ubyte(zp_address + self.cpu.idy)
 
     def absolute(self):
-        return int(self.cpu.fetch_word(), base=0)
+        address = int(self.cpu.fetch_word(), base=0)
+        return address
 
     def absolute_x(self):
         address = int(self.cpu.fetch_word(), base=0)
         if (address >> 8) != ((address + self.cpu.idx) >> 8):
             ~self.cpu.clock
-        return int(self.cpu.read_byte(address + self.cpu.idx), base=0)
+        return address + self.cpu.idx
 
     def absolute_y(self):
         address = int(self.cpu.fetch_word(), base=0)
         if (address >> 8) != ((address + self.cpu.idy) >> 8):
             ~self.cpu.clock
-        return int(self.cpu.read_byte(address + self.cpu.idy), base=0)
+        return address + self.cpu.idy
 
     def indexed_indirect(self):
         zp_address = np.ubyte(int(self.cpu.fetch_byte(), base=0) + self.cpu.idx)
         ~self.cpu.clock
         address = int(self.cpu.read_word(zp_address), base=0)
-        return int(self.cpu.read_byte(address), base=0)
+        return address
 
     def indirect_indexed(self):
         zp_address = int(self.cpu.fetch_byte(), base=0)
         address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
         if (address >> 8) != ((address + self.cpu.idy) >> 8):
             ~self.cpu.clock
-        return int(self.cpu.read_byte(address), base=0)
+        return address
 
     def implied(self):
         # Too many different methods to generalise
@@ -184,29 +186,29 @@ class LDA(AbstractInstruction):
         self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def zero_page_x(self):
-        value = super(LDA, self).zero_page_x()
-        self.cpu.acc = value
-        ~self.cpu.clock  # One additional clock needed
+        address = super(LDA, self).zero_page_x()
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
+        ~self.cpu.clock
 
     def absolute(self):
         address = super(LDA, self).absolute()
         self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
-        value = super(LDA, self).absolute_x()
-        self.cpu.acc = value
+        address = super(LDA, self).absolute_x()
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def absolute_y(self):
-        value = super(LDA, self).absolute_y()
-        self.cpu.acc = value
+        address = super(LDA, self).absolute_y()
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def indexed_indirect(self):
-        value = super(LDA, self).indexed_indirect()
-        self.cpu.acc = value
+        address = super(LDA, self).indexed_indirect()
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
     def indirect_indexed(self):
-        value = super(LDA, self).indirect_indexed()
-        self.cpu.acc = value
+        address = super(LDA, self).indirect_indexed()
+        self.cpu.acc = int(self.cpu.read_byte(address), base=0)
 
 
 class LDX(AbstractInstruction):
@@ -226,26 +228,25 @@ class LDX(AbstractInstruction):
         self.cpu.ps['negative_flag'] = (self.cpu.idx & 0b10000000 != 0)  # Set negative flag if bit 7 of acc is set
 
     def immediate(self):
-        self.cpu.idx = int(self.cpu.fetch_byte(), base=0)
+        value = super(LDX, self).immediate()
+        self.cpu.idx = value
 
     def zero_page(self):
-        address = int(self.cpu.fetch_byte(), base=0)
+        address = super(LDX, self).zero_page()
         self.cpu.idx = int(self.cpu.read_byte(address), base=0)
 
     def zero_page_y(self):
-        address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.idx = int(self.cpu.read_byte(address + int(self.cpu.idy)), base=0)
+        address = super(LDX, self).zero_page_y()
+        self.cpu.idx = int(self.cpu.read_byte(address), base=0)
         ~self.cpu.clock  # One additional clock needed
 
     def absolute(self):
-        address = int(self.cpu.fetch_word(), base=0)
+        address = super(LDX, self).absolute()
         self.cpu.idx = int(self.cpu.read_byte(address), base=0)
 
     def absolute_y(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
-        self.cpu.idx = int(self.cpu.read_byte(address + self.cpu.idy), base=0)
+        address = super(LDX, self).absolute_y()
+        self.cpu.idx = int(self.cpu.read_byte(address), base=0)
 
 
 class LDY(AbstractInstruction):
@@ -265,26 +266,25 @@ class LDY(AbstractInstruction):
         self.cpu.ps['negative_flag'] = (self.cpu.idy & 0b10000000 != 0)  # Set negative flag if bit 7 of acc is set
 
     def immediate(self):
-        self.cpu.idy = int(self.cpu.fetch_byte(), base=0)
+        value = super(LDY, self).immediate()
+        self.cpu.idy = value
 
     def zero_page(self):
-        address = int(self.cpu.fetch_byte(), base=0)
+        address = super(LDY, self).zero_page()
         self.cpu.idy = int(self.cpu.read_byte(address), base=0)
 
     def zero_page_x(self):
-        address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.idy = int(self.cpu.read_byte(address + int(self.cpu.idx)), base=0)
+        address = super(LDY, self).zero_page_x()
+        self.cpu.idy = int(self.cpu.read_byte(address), base=0)
         ~self.cpu.clock  # One additional clock needed
 
     def absolute(self):
-        address = int(self.cpu.fetch_word(), base=0)
+        address = super(LDY, self).absolute()
         self.cpu.idy = int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idx) >> 8):
-            ~self.cpu.clock
-        self.cpu.idy = int(self.cpu.read_byte(address + self.cpu.idx), base=0)
+        address = super(LDY, self).absolute_x()
+        self.cpu.idy = int(self.cpu.read_byte(address), base=0)
 
 
 class STA(AbstractInstruction):
@@ -302,39 +302,37 @@ class STA(AbstractInstruction):
         }
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(STA, self).zero_page()
         self.cpu.write_byte(address=zp_address, value=self.cpu.acc)
 
     def zero_page_x(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.write_byte(address=zp_address + self.cpu.idx, value=self.cpu.acc)
+        zp_address = super(STA, self).zero_page_x()
+        self.cpu.write_byte(address=zp_address, value=self.cpu.acc)
         ~self.cpu.clock
 
     def absolute(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
-        self.cpu.write_byte(address=target_address, value=self.cpu.acc)
+        address = super(STA, self).absolute()
+        self.cpu.write_byte(address=address, value=self.cpu.acc)
 
     def absolute_x(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
-        self.cpu.write_byte(address=target_address + self.cpu.idx, value=self.cpu.acc)
+        address = super(STA, self).absolute_x()
+        self.cpu.write_byte(address=address, value=self.cpu.acc)
         ~self.cpu.clock
 
     def absolute_y(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
-        self.cpu.write_byte(address=target_address + self.cpu.idy, value=self.cpu.acc)
+        address = super(STA, self).absolute_y()
+        self.cpu.write_byte(address=address, value=self.cpu.acc)
         ~self.cpu.clock
 
     def indexed_indirect(self):
-        zp_address = np.ubyte(int(self.cpu.fetch_byte(), base=0) + self.cpu.idx)
-        ~self.cpu.clock
-        address = int(self.cpu.read_word(zp_address), base=0)
+        address = super(STA, self).indexed_indirect()
         self.cpu.write_byte(address=address, value=self.cpu.acc)
 
     def indirect_indexed(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
-        ~self.cpu.clock
+        starting_clock = self.cpu.clock.total_clock_cycles
+        address = super(STA, self).indirect_indexed()
         self.cpu.write_byte(address=address, value=self.cpu.acc)
+        self.cpu.clock.total_clock_cycles = starting_clock + 5  # Done to ensure static 6 clock cycles
 
 
 class STX(AbstractInstruction):
@@ -348,17 +346,17 @@ class STX(AbstractInstruction):
         }
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(STX, self).zero_page()
         self.cpu.write_byte(address=zp_address, value=self.cpu.idx)
 
     def zero_page_y(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.write_byte(address=zp_address + self.cpu.idy, value=self.cpu.idx)
+        zp_address = super(STX, self).zero_page_y()
+        self.cpu.write_byte(address=zp_address, value=self.cpu.idx)
         ~self.cpu.clock
 
     def absolute(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
-        self.cpu.write_byte(address=target_address, value=self.cpu.idx)
+        address = super(STX, self).absolute()
+        self.cpu.write_byte(address=address, value=self.cpu.idx)
 
 
 class STY(AbstractInstruction):
@@ -372,17 +370,17 @@ class STY(AbstractInstruction):
         }
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(STY, self).zero_page()
         self.cpu.write_byte(address=zp_address, value=self.cpu.idy)
 
     def zero_page_x(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.write_byte(address=zp_address + self.cpu.idx, value=self.cpu.idy)
+        zp_address = super(STY, self).zero_page_x()
+        self.cpu.write_byte(address=zp_address, value=self.cpu.idy)
         ~self.cpu.clock
 
     def absolute(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
-        self.cpu.write_byte(address=target_address, value=self.cpu.idy)
+        address = super(STY, self).absolute()
+        self.cpu.write_byte(address=address, value=self.cpu.idy)
 
 
 """TRANSFER INSTRUCTIONS"""
@@ -561,44 +559,36 @@ class AND(AbstractInstruction):
         self.cpu.ps['negative_flag'] = (self.cpu.acc & 0b10000000 != 0)  # Set negative flag if bit 7 of acc is set
 
     def immediate(self):
-        self.cpu.acc &= int(self.cpu.fetch_byte(), base=0)
+        value = super(AND, self).immediate()
+        self.cpu.acc &= value
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(AND, self).zero_page()
         self.cpu.acc &= int(self.cpu.read_byte(zp_address), base=0)
 
     def zero_page_x(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.acc &= int(self.cpu.read_byte(np.ubyte(zp_address + self.cpu.idx)), base=0)
+        zp_address = super(AND, self).zero_page_x()
+        self.cpu.acc &= int(self.cpu.read_byte(zp_address), base=0)
         ~self.cpu.clock
 
     def absolute(self):
-        address = int(self.cpu.fetch_word(), base=0)
+        address = super(AND, self).absolute()
         self.cpu.acc &= int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idx) >> 8):
-            ~self.cpu.clock
-        self.cpu.acc &= int(self.cpu.read_byte(address + self.cpu.idx), base=0)
+        address = super(AND, self).absolute_x()
+        self.cpu.acc &= int(self.cpu.read_byte(address), base=0)
 
     def absolute_y(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
-        self.cpu.acc &= int(self.cpu.read_byte(address + self.cpu.idy), base=0)
+        address = super(AND, self).absolute_y()
+        self.cpu.acc &= int(self.cpu.read_byte(address), base=0)
 
     def indexed_indirect(self):
-        zp_address = np.ubyte(int(self.cpu.fetch_byte(), base=0) + self.cpu.idx)
-        ~self.cpu.clock
-        address = int(self.cpu.read_word(zp_address), base=0)
+        address = super(AND, self).indexed_indirect()
         self.cpu.acc &= int(self.cpu.read_byte(address), base=0)
 
     def indirect_indexed(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
+        address = super(AND, self).indirect_indexed()
         self.cpu.acc &= int(self.cpu.read_byte(address), base=0)
 
 
@@ -622,44 +612,36 @@ class EOR(AbstractInstruction):
         self.cpu.ps['negative_flag'] = (self.cpu.acc & 0b10000000 != 0)  # Set negative flag if bit 7 of acc is set
 
     def immediate(self):
-        self.cpu.acc ^= int(self.cpu.fetch_byte(), base=0)
+        value = super(EOR, self).immediate()
+        self.cpu.acc ^= value
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(EOR, self).zero_page()
         self.cpu.acc ^= int(self.cpu.read_byte(zp_address), base=0)
 
     def zero_page_x(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.acc ^= int(self.cpu.read_byte(np.ubyte(zp_address + self.cpu.idx)), base=0)
+        zp_address = super(EOR, self).zero_page_x()
+        self.cpu.acc ^= int(self.cpu.read_byte(zp_address), base=0)
         ~self.cpu.clock
 
     def absolute(self):
-        address = int(self.cpu.fetch_word(), base=0)
+        address = super(EOR, self).absolute()
         self.cpu.acc ^= int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idx) >> 8):
-            ~self.cpu.clock
-        self.cpu.acc ^= int(self.cpu.read_byte(address + self.cpu.idx), base=0)
+        address = super(EOR, self).absolute_x()
+        self.cpu.acc ^= int(self.cpu.read_byte(address), base=0)
 
     def absolute_y(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
-        self.cpu.acc ^= int(self.cpu.read_byte(address + self.cpu.idy), base=0)
+        address = super(EOR, self).absolute_y()
+        self.cpu.acc ^= int(self.cpu.read_byte(address), base=0)
 
     def indexed_indirect(self):
-        zp_address = np.ubyte(int(self.cpu.fetch_byte(), base=0) + self.cpu.idx)
-        ~self.cpu.clock
-        address = int(self.cpu.read_word(zp_address), base=0)
+        address = super(EOR, self).indexed_indirect()
         self.cpu.acc ^= int(self.cpu.read_byte(address), base=0)
 
     def indirect_indexed(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
+        address = super(EOR, self).indirect_indexed()
         self.cpu.acc ^= int(self.cpu.read_byte(address), base=0)
 
 
@@ -683,44 +665,36 @@ class ORA(AbstractInstruction):
         self.cpu.ps['negative_flag'] = (self.cpu.acc & 0b10000000 != 0)  # Set negative flag if bit 7 of acc is set
 
     def immediate(self):
-        self.cpu.acc |= int(self.cpu.fetch_byte(), base=0)
+        value = super(ORA, self).immediate()
+        self.cpu.acc |= value
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(ORA, self).zero_page()
         self.cpu.acc |= int(self.cpu.read_byte(zp_address), base=0)
 
     def zero_page_x(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        self.cpu.acc |= int(self.cpu.read_byte(np.ubyte(zp_address + self.cpu.idx)), base=0)
+        zp_address = super(ORA, self).zero_page_x()
+        self.cpu.acc |= int(self.cpu.read_byte(zp_address), base=0)
         ~self.cpu.clock
 
     def absolute(self):
-        address = int(self.cpu.fetch_word(), base=0)
+        address = super(ORA, self).absolute()
         self.cpu.acc |= int(self.cpu.read_byte(address), base=0)
 
     def absolute_x(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idx) >> 8):
-            ~self.cpu.clock
-        self.cpu.acc |= int(self.cpu.read_byte(address + self.cpu.idx), base=0)
+        address = super(ORA, self).absolute_x()
+        self.cpu.acc |= int(self.cpu.read_byte(address), base=0)
 
     def absolute_y(self):
-        address = int(self.cpu.fetch_word(), base=0)
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
-        self.cpu.acc |= int(self.cpu.read_byte(address + self.cpu.idy), base=0)
+        address = super(ORA, self).absolute_y()
+        self.cpu.acc |= int(self.cpu.read_byte(address), base=0)
 
     def indexed_indirect(self):
-        zp_address = np.ubyte(int(self.cpu.fetch_byte(), base=0) + self.cpu.idx)
-        ~self.cpu.clock
-        address = int(self.cpu.read_word(zp_address), base=0)
+        address = super(ORA, self).indexed_indirect()
         self.cpu.acc |= int(self.cpu.read_byte(address), base=0)
 
     def indirect_indexed(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
-        address = int(self.cpu.read_word(zp_address), base=0) + self.cpu.idy
-        if (address >> 8) != ((address + self.cpu.idy) >> 8):
-            ~self.cpu.clock
+        address = super(ORA, self).indirect_indexed()
         self.cpu.acc |= int(self.cpu.read_byte(address), base=0)
 
 
@@ -734,14 +708,14 @@ class BIT(AbstractInstruction):
         }
 
     def zero_page(self):
-        zp_address = int(self.cpu.fetch_byte(), base=0)
+        zp_address = super(BIT, self).zero_page()
         value = int(self.cpu.read_byte(zp_address), base=0)
         self.cpu.ps['zero_flag'] = ((value & self.cpu.acc) == 0)
         self.cpu.ps['overflow_flag'] = (value & 0b01000000)
         self.cpu.ps['negative_flag'] = (value & 0b10000000 != 0)
 
     def absolute(self):
-        address = int(self.cpu.fetch_word(), base=0)
+        address = super(BIT, self).absolute()
         value = int(self.cpu.read_byte(address), base=0)
         self.cpu.ps['zero_flag'] = ((value & self.cpu.acc) == 0)
         self.cpu.ps['overflow_flag'] = (value & 0b01000000)
@@ -924,8 +898,8 @@ class JMP(AbstractInstruction):
         }
 
     def absolute(self):
-        target_address = self.cpu.fetch_word()
-        self.cpu.pc = int(target_address, base=0)
+        address = super(JMP, self).absolute()
+        self.cpu.pc = address
 
     def indirect(self):
         address = int(self.cpu.fetch_word(), base=0)
@@ -942,7 +916,7 @@ class JSR(AbstractInstruction):
         }
 
     def absolute(self):
-        target_address = int(self.cpu.fetch_word(), base=0)
+        target_address = super(JSR, self).absolute()
         self.cpu.push_word_on_stack(self.cpu.pc - 1)
         self.cpu.pc = target_address
 
