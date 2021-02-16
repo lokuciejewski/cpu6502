@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 
 
-@pytest.mark.skip
 @pytest.mark.usefixtures('setup_cpu')
 class TestADC:
 
@@ -36,12 +35,13 @@ class TestADC:
         assert setup_cpu.ps['zero_flag'] == expected_zero_flag
         assert setup_cpu.ps['negative_flag'] == expected_negative_flag
         assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 2
 
     @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
     @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
     @pytest.mark.parametrize('carry_flag', [False, True])
     def test_adc_zero_page(self, setup_cpu, acc, value, carry_flag):
-        setup_cpu.memory[0x0200] = 0x69  # ADC instruction
+        setup_cpu.memory[0x0200] = 0x65  # ADC instruction
         setup_cpu.memory[0x0201] = 0x1a
         setup_cpu.memory[0x1a] = value
         setup_cpu.acc = acc
@@ -57,12 +57,13 @@ class TestADC:
         assert setup_cpu.ps['zero_flag'] == expected_zero_flag
         assert setup_cpu.ps['negative_flag'] == expected_negative_flag
         assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 3
 
     @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
     @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
     @pytest.mark.parametrize('carry_flag', [False, True])
     def test_adc_zero_page_x(self, setup_cpu, acc, value, carry_flag):
-        setup_cpu.memory[0x0200] = 0x69  # ADC instruction
+        setup_cpu.memory[0x0200] = 0x75  # ADC instruction
         setup_cpu.memory[0x0201] = 0xb1
         setup_cpu.memory[0xb1 + 0x10] = value
         setup_cpu.acc = acc
@@ -79,30 +80,201 @@ class TestADC:
         assert setup_cpu.ps['zero_flag'] == expected_zero_flag
         assert setup_cpu.ps['negative_flag'] == expected_negative_flag
         assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
 
-    def test_adc_absolute(self, setup_cpu):
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_absolute(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x6d  # ADC instruction
+        setup_cpu.memory[0x0201] = 0xb1
+        setup_cpu.memory[0x0202] = 0xac
+        setup_cpu.memory[0xacb1] = value
+        setup_cpu.acc = acc
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
+
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_absolute_x_no_page_crossed(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x7d  # ADC instruction
+        setup_cpu.memory[0x0201] = 0xb1
+        setup_cpu.memory[0x0202] = 0xac
+        setup_cpu.memory[0xacb1 + 0x01] = value
+        setup_cpu.acc = acc
+        setup_cpu.idx = 0x01
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
+
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_absolute_x_page_crossed(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x7d  # ADC instruction
+        setup_cpu.memory[0x0201] = 0xb1
+        setup_cpu.memory[0x0202] = 0xac
+        setup_cpu.memory[0xacb1 + 0xff] = value
+        setup_cpu.acc = acc
+        setup_cpu.idx = 0xff
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
+
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_absolute_y_no_page_crossed(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x79  # ADC instruction
+        setup_cpu.memory[0x0201] = 0xb1
+        setup_cpu.memory[0x0202] = 0xac
+        setup_cpu.memory[0xacb1 + 0x01] = value
+        setup_cpu.acc = acc
+        setup_cpu.idy = 0x01
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
+
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_absolute_y_page_crossed(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x79  # ADC instruction
+        setup_cpu.memory[0x0201] = 0xb1
+        setup_cpu.memory[0x0202] = 0xac
+        setup_cpu.memory[0xacb1 + 0xff] = value
+        setup_cpu.acc = acc
+        setup_cpu.idy = 0xff
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
+
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_indexed_indirect(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.idx = 0x10
+        setup_cpu.memory[0x0200] = 0x61  # ADC instruction
+        setup_cpu.memory[0x201] = 0xb8
+        setup_cpu.memory[0xb8 + setup_cpu.idx] = 0x88
+        setup_cpu.memory[0xb8 + setup_cpu.idx + 1] = 0x7a
+        setup_cpu.memory[0x7a88] = value
+        setup_cpu.acc = acc
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
         pass
 
-    def test_adc_absolute_x_no_page_crossed(self, setup_cpu):
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_indirect_indexed_no_page_crossed(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.idy = 0x01
+        setup_cpu.memory[0x201] = 0x00ae
+        setup_cpu.memory[0x00ae] = 0x37
+        setup_cpu.memory[0x00af] = 0x21
+        setup_cpu.memory[0x2137 + 0x01] = value
+        setup_cpu.acc = acc
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
         pass
 
-    def test_adc_absolute_x_page_crossed(self, setup_cpu):
-        pass
-
-    def test_adc_absolute_y_no_page_crossed(self, setup_cpu):
-        pass
-
-    def test_adc_absolute_y_page_crossed(self, setup_cpu):
-        pass
-
-    def test_adc_indexed_indirect(self, setup_cpu):
-        pass
-
-    def test_adc_indirect_indexed_no_page_crossed(self, setup_cpu):
-        pass
-
-    def test_adc_indirect_indexed_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xef, 0xff])
+    @pytest.mark.parametrize('value', [0x0, 0x2, 0xf1, 0xfe])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_adc_indirect_indexed_page_crossed(self, setup_cpu, acc, value, carry_flag):
+        setup_cpu.idy = 0xff
+        setup_cpu.memory[0x201] = 0x00ae
+        setup_cpu.memory[0x00ae] = 0x37
+        setup_cpu.memory[0x00af] = 0x21
+        setup_cpu.memory[0x2137 + 0xff] = value
+        setup_cpu.acc = acc
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte(value + acc + int(carry_flag))
+        expected_carry_flag = value + acc + int(carry_flag) > 0xff
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value & 0b10000000) != 0
+        expected_overflow_flag = ((value >> 7) == (acc >> 7)) != (expected_value >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.ps['overflow_flag'] == expected_overflow_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
 
 @pytest.mark.usefixtures('setup_cpu')
