@@ -35,7 +35,7 @@ class Instructions:
             'ORA': ORA,
             'BIT': BIT,
             # ARITHMETIC OPERATIONS
-            'ADC': CMP,
+            'ADC': ADC,
             'SBC': SBC,
             'CMP': CMP,
             'CPX': CPX,
@@ -115,10 +115,12 @@ class AbstractInstruction:
 
     def zero_page_x(self):
         zp_address = int(self.cpu.fetch_byte(), base=0)
+        ~self.cpu.clock
         return np.ubyte(zp_address + self.cpu.idx)
 
     def zero_page_y(self):
         zp_address = int(self.cpu.fetch_byte(), base=0)
+        ~self.cpu.clock
         return np.ubyte(zp_address + self.cpu.idy)
 
     def absolute(self):
@@ -188,7 +190,6 @@ class LDA(AbstractInstruction):
     def zero_page_x(self):
         address = super(LDA, self).zero_page_x()
         self.cpu.acc = int(self.cpu.read_byte(address), base=0)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(LDA, self).absolute()
@@ -238,7 +239,6 @@ class LDX(AbstractInstruction):
     def zero_page_y(self):
         address = super(LDX, self).zero_page_y()
         self.cpu.idx = int(self.cpu.read_byte(address), base=0)
-        ~self.cpu.clock  # One additional clock needed
 
     def absolute(self):
         address = super(LDX, self).absolute()
@@ -276,7 +276,6 @@ class LDY(AbstractInstruction):
     def zero_page_x(self):
         address = super(LDY, self).zero_page_x()
         self.cpu.idy = int(self.cpu.read_byte(address), base=0)
-        ~self.cpu.clock  # One additional clock needed
 
     def absolute(self):
         address = super(LDY, self).absolute()
@@ -308,7 +307,6 @@ class STA(AbstractInstruction):
     def zero_page_x(self):
         zp_address = super(STA, self).zero_page_x()
         self.cpu.write_byte(address=zp_address, value=self.cpu.acc)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(STA, self).absolute()
@@ -352,7 +350,6 @@ class STX(AbstractInstruction):
     def zero_page_y(self):
         zp_address = super(STX, self).zero_page_y()
         self.cpu.write_byte(address=zp_address, value=self.cpu.idx)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(STX, self).absolute()
@@ -376,7 +373,6 @@ class STY(AbstractInstruction):
     def zero_page_x(self):
         zp_address = super(STY, self).zero_page_x()
         self.cpu.write_byte(address=zp_address, value=self.cpu.idy)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(STY, self).absolute()
@@ -569,7 +565,6 @@ class AND(AbstractInstruction):
     def zero_page_x(self):
         zp_address = super(AND, self).zero_page_x()
         self.cpu.acc &= int(self.cpu.read_byte(zp_address), base=0)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(AND, self).absolute()
@@ -622,7 +617,6 @@ class EOR(AbstractInstruction):
     def zero_page_x(self):
         zp_address = super(EOR, self).zero_page_x()
         self.cpu.acc ^= int(self.cpu.read_byte(zp_address), base=0)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(EOR, self).absolute()
@@ -675,7 +669,6 @@ class ORA(AbstractInstruction):
     def zero_page_x(self):
         zp_address = super(ORA, self).zero_page_x()
         self.cpu.acc |= int(self.cpu.read_byte(zp_address), base=0)
-        ~self.cpu.clock
 
     def absolute(self):
         address = super(ORA, self).absolute()
@@ -736,33 +729,76 @@ class ADC(AbstractInstruction):
             '0x6d': self.absolute,
             '0x7d': self.absolute_x,
             '0x79': self.absolute_y,
-            '0x61': self.indirect_indexed,
-            '0x71': self.indexed_indirect
+            '0x61': self.indexed_indirect,
+            '0x71': self.indirect_indexed
         }
 
+    def finalise(self):
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+        self.cpu.ps['negative_flag'] = bool(self.cpu.acc >> 7)
+
     def immediate(self):
-        pass
+        value = super(ADC, self).immediate()
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def zero_page(self):
-        pass
+        address = super(ADC, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def zero_page_x(self):
-        pass
+        address = super(ADC, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def absolute(self):
-        pass
+        address = super(ADC, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def absolute_x(self):
-        pass
+        address = super(ADC, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def absolute_y(self):
-        pass
+        address = super(ADC, self).absolute_y()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def indexed_indirect(self):
-        pass
+        address = super(ADC, self).indexed_indirect()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def indirect_indexed(self):
-        pass
+        address = super(ADC, self).indirect_indexed()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = value + self.cpu.acc + self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
 
 class SBC(AbstractInstruction):

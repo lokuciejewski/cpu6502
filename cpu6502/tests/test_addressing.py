@@ -34,7 +34,7 @@ class TestAddressing:
         setup_cpu.memory[address] = zp_address
         addressing = AbstractInstruction(setup_cpu)
         assert addressing.zero_page_x() == np.ubyte(zp_address + idx)
-        assert setup_cpu.clock.total_clock_cycles == 1
+        assert setup_cpu.clock.total_clock_cycles == 2
 
     @pytest.mark.parametrize('address', [0x0, 0xff01, 0xffff, 0x01, 0x0101])
     @pytest.mark.parametrize('zp_address', [0x0, 0x01, 0xff, 0xe1])
@@ -45,7 +45,7 @@ class TestAddressing:
         setup_cpu.memory[address] = zp_address
         addressing = AbstractInstruction(setup_cpu)
         assert addressing.zero_page_y() == np.ubyte(zp_address + idy)
-        assert setup_cpu.clock.total_clock_cycles == 1
+        assert setup_cpu.clock.total_clock_cycles == 2
 
     @pytest.mark.parametrize('address', [0x0, 0xff01, 0xfffe, 0x01, 0x0101])
     @pytest.mark.parametrize('address_fst, address_snd', [(0x0, 0x0), (0x0, 0x1), (0xff, 0xff), (0xab, 0xdc)])
