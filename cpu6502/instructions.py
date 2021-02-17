@@ -812,8 +812,8 @@ class SBC(AbstractInstruction):
             '0xed': self.absolute,
             '0xfd': self.absolute_x,
             '0xf9': self.absolute_y,
-            '0xe1': self.indirect_indexed,
-            '0xf1': self.indexed_indirect
+            '0xe1': self.indexed_indirect,
+            '0xf1': self.indirect_indexed
         }
 
     def immediate(self):
@@ -852,8 +852,8 @@ class CMP(AbstractInstruction):
             '0xcd': self.absolute,
             '0xdd': self.absolute_x,
             '0xd9': self.absolute_y,
-            '0xc1': self.indirect_indexed,
-            '0xd1': self.indexed_indirect
+            '0xc1': self.indexed_indirect,
+            '0xd1': self.indirect_indexed
         }
 
     def immediate(self):
