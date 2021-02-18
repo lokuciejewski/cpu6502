@@ -78,5 +78,3 @@ class Instructions:
         instruction = self.opcodes[opcode](self.cpu)
         instruction.execute(opcode)
         instruction.finalise()
-
-

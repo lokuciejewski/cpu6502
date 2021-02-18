@@ -36,5 +36,3 @@ class Memory:
         :return: list: List of all values on stack
         """
         return [hex(val) for val in self.data[0x01ff - n: 0x01ff]]
-
-

@@ -3,6 +3,7 @@ import pytest
 
 import cpu6502.instructions
 
+
 @pytest.mark.usefixtures('setup_cpu')
 class TestAddressing:
 

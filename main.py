@@ -22,4 +22,3 @@ if __name__ == '__main__':
         input()
         cpu.execute(1)
         print(cpu)
-

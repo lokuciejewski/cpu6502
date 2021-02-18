@@ -39,24 +39,24 @@ class TestCPU:
                                                  'overflow_flag': False,
                                                  'negative_flag': True
                                              }, 0b01101001),
-        ({
-             'carry_flag': False,
-             'zero_flag': False,
-             'interrupt_disable': False,
-             'decimal_mode': False,
-             'break_command': False,
-             'overflow_flag': False,
-             'negative_flag': False
-         }, 0b00000000),
-        ({
-             'carry_flag': True,
-             'zero_flag': True,
-             'interrupt_disable': True,
-             'decimal_mode': True,
-             'break_command': True,
-             'overflow_flag': True,
-             'negative_flag': True
-         }, 0b01111111)])
+                                            ({
+                                                 'carry_flag': False,
+                                                 'zero_flag': False,
+                                                 'interrupt_disable': False,
+                                                 'decimal_mode': False,
+                                                 'break_command': False,
+                                                 'overflow_flag': False,
+                                                 'negative_flag': False
+                                             }, 0b00000000),
+                                            ({
+                                                 'carry_flag': True,
+                                                 'zero_flag': True,
+                                                 'interrupt_disable': True,
+                                                 'decimal_mode': True,
+                                                 'break_command': True,
+                                                 'overflow_flag': True,
+                                                 'negative_flag': True
+                                             }, 0b01111111)])
     def test_cpu_convert_ps_to_binary(self, setup_cpu, ps, result):
         setup_cpu.ps = ps
         assert setup_cpu.convert_ps_to_binary() == result
@@ -71,24 +71,24 @@ class TestCPU:
                                                      'overflow_flag': False,
                                                      'negative_flag': True
                                                  }, 0b01101001),
-        ({
-             'carry_flag': False,
-             'zero_flag': False,
-             'interrupt_disable': False,
-             'decimal_mode': False,
-             'break_command': False,
-             'overflow_flag': False,
-             'negative_flag': False
-         }, 0b00000000),
-        ({
-             'carry_flag': True,
-             'zero_flag': True,
-             'interrupt_disable': True,
-             'decimal_mode': True,
-             'break_command': True,
-             'overflow_flag': True,
-             'negative_flag': True
-         }, 0b01111111)])
+                                                ({
+                                                     'carry_flag': False,
+                                                     'zero_flag': False,
+                                                     'interrupt_disable': False,
+                                                     'decimal_mode': False,
+                                                     'break_command': False,
+                                                     'overflow_flag': False,
+                                                     'negative_flag': False
+                                                 }, 0b00000000),
+                                                ({
+                                                     'carry_flag': True,
+                                                     'zero_flag': True,
+                                                     'interrupt_disable': True,
+                                                     'decimal_mode': True,
+                                                     'break_command': True,
+                                                     'overflow_flag': True,
+                                                     'negative_flag': True
+                                                 }, 0b01111111)])
     @pytest.mark.parametrize('sp', [0x0, 0xf1, 0xfe])
     def test_cpu_convert_binary_to_ps(self, setup_cpu, result, bin_ps, sp):
         setup_cpu.sp = sp

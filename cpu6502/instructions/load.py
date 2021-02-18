@@ -1,5 +1,6 @@
 import cpu6502.instructions
 
+
 class LDA(cpu6502.instructions.AbstractInstruction):
 
     def __init__(self, cpu):

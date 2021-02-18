@@ -82,24 +82,24 @@ class TestPLP:
                                                      'overflow_flag': False,
                                                      'negative_flag': True
                                                  }, 0b01101001),
-        ({
-             'carry_flag': False,
-             'zero_flag': False,
-             'interrupt_disable': False,
-             'decimal_mode': False,
-             'break_command': False,
-             'overflow_flag': False,
-             'negative_flag': False
-         }, 0b00000000),
-        ({
-             'carry_flag': True,
-             'zero_flag': True,
-             'interrupt_disable': True,
-             'decimal_mode': True,
-             'break_command': True,
-             'overflow_flag': True,
-             'negative_flag': True
-         }, 0b01111111)])
+                                                ({
+                                                     'carry_flag': False,
+                                                     'zero_flag': False,
+                                                     'interrupt_disable': False,
+                                                     'decimal_mode': False,
+                                                     'break_command': False,
+                                                     'overflow_flag': False,
+                                                     'negative_flag': False
+                                                 }, 0b00000000),
+                                                ({
+                                                     'carry_flag': True,
+                                                     'zero_flag': True,
+                                                     'interrupt_disable': True,
+                                                     'decimal_mode': True,
+                                                     'break_command': True,
+                                                     'overflow_flag': True,
+                                                     'negative_flag': True
+                                                 }, 0b01111111)])
     @pytest.mark.parametrize('sp', [0x1, 0x00, 0xfe, 0x10])
     def test_plp_implied(self, setup_cpu, bin_ps, result, sp):
         setup_cpu.memory[0x0200] = 0x28  # PLP instruction
