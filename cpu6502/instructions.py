@@ -836,22 +836,52 @@ class SBC(AbstractInstruction):
         self.cpu.acc = np.ubyte(result)
 
     def zero_page_x(self):
-        pass
+        address = super(SBC, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def absolute(self):
-        pass
+        address = super(SBC, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def absolute_x(self):
-        pass
+        address = super(SBC, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def absolute_y(self):
-        pass
+        address = super(SBC, self).absolute_y()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def indexed_indirect(self):
-        pass
+        address = super(SBC, self).indexed_indirect()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def indirect_indexed(self):
-        pass
+        address = super(SBC, self).indirect_indexed()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
 
 class CMP(AbstractInstruction):
