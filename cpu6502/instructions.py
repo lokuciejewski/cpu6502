@@ -816,11 +816,24 @@ class SBC(AbstractInstruction):
             '0xf1': self.indirect_indexed
         }
 
+    def finalise(self):
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+        self.cpu.ps['negative_flag'] = bool(self.cpu.acc >> 7)
+
     def immediate(self):
-        pass
+        value = super(SBC, self).immediate()
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def zero_page(self):
-        pass
+        address = super(SBC, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        result = self.cpu.acc - value - (1 - self.cpu.ps['carry_flag'])
+        self.cpu.ps['carry_flag'] = result > 0xff
+        self.cpu.ps['overflow_flag'] = ((value >> 7) == (self.cpu.acc >> 7)) != (np.ubyte(result) >> 7)
+        self.cpu.acc = np.ubyte(result)
 
     def zero_page_x(self):
         pass
