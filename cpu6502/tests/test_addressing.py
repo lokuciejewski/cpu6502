@@ -1,8 +1,7 @@
 import numpy as np
 import pytest
 
-from cpu6502.instructions import AbstractInstruction
-
+import cpu6502.instructions
 
 @pytest.mark.usefixtures('setup_cpu')
 class TestAddressing:
@@ -12,7 +11,7 @@ class TestAddressing:
     def test_immediate(self, setup_cpu, address, value):
         setup_cpu.pc = address
         setup_cpu.memory[address] = value
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert addressing.immediate() == value
         assert setup_cpu.clock.total_clock_cycles == 1
 
@@ -21,7 +20,7 @@ class TestAddressing:
     def test_zero_page(self, setup_cpu, address, value):
         setup_cpu.pc = address
         setup_cpu.memory[address] = value
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert addressing.zero_page() == value
         assert setup_cpu.clock.total_clock_cycles == 1
 
@@ -32,7 +31,7 @@ class TestAddressing:
         setup_cpu.pc = address
         setup_cpu.idx = idx
         setup_cpu.memory[address] = zp_address
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert addressing.zero_page_x() == np.ubyte(zp_address + idx)
         assert setup_cpu.clock.total_clock_cycles == 2
 
@@ -43,7 +42,7 @@ class TestAddressing:
         setup_cpu.pc = address
         setup_cpu.idy = idy
         setup_cpu.memory[address] = zp_address
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert addressing.zero_page_y() == np.ubyte(zp_address + idy)
         assert setup_cpu.clock.total_clock_cycles == 2
 
@@ -54,7 +53,7 @@ class TestAddressing:
         setup_cpu.memory[address] = address_snd
         setup_cpu.memory[address + 1] = address_fst
         expected_address = address_snd + (address_fst << 8)
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.absolute()
         assert setup_cpu.clock.total_clock_cycles == 2
 
@@ -67,7 +66,7 @@ class TestAddressing:
         setup_cpu.memory[address] = address_snd
         setup_cpu.memory[address + 1] = address_fst
         expected_address = (address_snd + (address_fst << 8)) + idx
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.absolute_x()
         assert setup_cpu.clock.total_clock_cycles == 2
 
@@ -80,7 +79,7 @@ class TestAddressing:
         setup_cpu.memory[address] = address_snd
         setup_cpu.memory[address + 1] = address_fst
         expected_address = (address_snd + (address_fst << 8)) + idx
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.absolute_x()
         assert setup_cpu.clock.total_clock_cycles == 3
 
@@ -93,7 +92,7 @@ class TestAddressing:
         setup_cpu.memory[address] = address_snd
         setup_cpu.memory[address + 1] = address_fst
         expected_address = (address_snd + (address_fst << 8)) + idy
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.absolute_y()
         assert setup_cpu.clock.total_clock_cycles == 2
 
@@ -106,7 +105,7 @@ class TestAddressing:
         setup_cpu.memory[address] = address_snd
         setup_cpu.memory[address + 1] = address_fst
         expected_address = (address_snd + (address_fst << 8)) + idy
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.absolute_y()
         assert setup_cpu.clock.total_clock_cycles == 3
 
@@ -122,7 +121,7 @@ class TestAddressing:
         setup_cpu.memory[target_address] = address_snd
         setup_cpu.memory[target_address + 1] = address_fst
         expected_address = address_snd + (address_fst << 8)
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.indexed_indirect()
         assert setup_cpu.clock.total_clock_cycles == 4
 
@@ -137,7 +136,7 @@ class TestAddressing:
         setup_cpu.memory[zp_address] = address_snd
         setup_cpu.memory[zp_address + 1] = address_fst
         expected_address = (address_snd + (address_fst << 8)) + idy
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.indirect_indexed()
         assert setup_cpu.clock.total_clock_cycles == 3
 
@@ -152,6 +151,6 @@ class TestAddressing:
         setup_cpu.memory[zp_address] = address_snd
         setup_cpu.memory[zp_address + 1] = address_fst
         expected_address = (address_snd + (address_fst << 8)) + idy
-        addressing = AbstractInstruction(setup_cpu)
+        addressing = cpu6502.instructions.AbstractInstruction(setup_cpu)
         assert expected_address == addressing.indirect_indexed()
         assert setup_cpu.clock.total_clock_cycles == 4

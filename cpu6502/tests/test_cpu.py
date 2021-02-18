@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from cpu6502.cpu import CPU
-from cpu6502.instructions import Instructions
+from cpu6502.instructions.instructions import Instructions
 from cpu6502.memory import Memory
 
 
@@ -63,14 +63,14 @@ class TestCPU:
         assert setup_cpu.clock.total_clock_cycles == 0
 
     @pytest.mark.parametrize('result, bin_ps', [({
-                                                 'carry_flag': True,
-                                                 'zero_flag': True,
-                                                 'interrupt_disable': False,
-                                                 'decimal_mode': True,
-                                                 'break_command': False,
-                                                 'overflow_flag': False,
-                                                 'negative_flag': True
-                                             }, 0b01101001),
+                                                     'carry_flag': True,
+                                                     'zero_flag': True,
+                                                     'interrupt_disable': False,
+                                                     'decimal_mode': True,
+                                                     'break_command': False,
+                                                     'overflow_flag': False,
+                                                     'negative_flag': True
+                                                 }, 0b01101001),
         ({
              'carry_flag': False,
              'zero_flag': False,
