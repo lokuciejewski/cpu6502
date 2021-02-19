@@ -131,19 +131,56 @@ class ROL(cpu6502.instructions.AbstractInstruction):
         }
 
     def accumulator(self):
-        pass
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = (self.cpu.acc >> 7)
+        self.cpu.acc = np.ubyte((self.cpu.acc << 1) + carry_flag_value)
+        ~self.cpu.clock
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+        self.cpu.ps['negative_flag'] = (self.cpu.acc >> 7) == 1
 
     def zero_page(self):
-        pass
+        address = super(ROL, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte((value << 1) + carry_flag_value)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def zero_page_x(self):
-        pass
+        address = super(ROL, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte((value << 1) + carry_flag_value)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def absolute(self):
-        pass
+        address = super(ROL, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte((value << 1) + carry_flag_value)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def absolute_x(self):
-        pass
+        address = super(ROL, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte((value << 1) + carry_flag_value)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
 
 class ROR(cpu6502.instructions.AbstractInstruction):
@@ -158,16 +195,53 @@ class ROR(cpu6502.instructions.AbstractInstruction):
         }
 
     def accumulator(self):
-        pass
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = self.cpu.acc % 2
+        self.cpu.acc = np.ubyte((self.cpu.acc >> 1) + (carry_flag_value << 7))
+        ~self.cpu.clock
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+        self.cpu.ps['negative_flag'] = (self.cpu.acc >> 7) == 1
 
     def zero_page(self):
-        pass
+        address = super(ROR, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte((value >> 1) + (carry_flag_value << 7))
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def zero_page_x(self):
-        pass
+        address = super(ROR, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte((value >> 1) + (carry_flag_value << 7))
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def absolute(self):
-        pass
+        address = super(ROR, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte((value >> 1) + (carry_flag_value << 7))
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def absolute_x(self):
-        pass
+        address = super(ROR, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        carry_flag_value = self.cpu.ps['carry_flag']
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte((value >> 1) + (carry_flag_value << 7))
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
