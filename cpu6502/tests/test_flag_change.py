@@ -42,7 +42,7 @@ class TestCLV:
 
     @pytest.mark.parametrize('overflow_flag', [False, True])
     def test_clv_implied(self, setup_cpu, overflow_flag):
-        setup_cpu.memory[0x0200] = 0x18  # CLV instruction
+        setup_cpu.memory[0x0200] = 0xb8  # CLV instruction
         setup_cpu.ps['overflow_flag'] = overflow_flag
         setup_cpu.execute(1)
         assert not setup_cpu.ps['overflow_flag']
