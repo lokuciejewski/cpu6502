@@ -8,7 +8,7 @@ from cpu6502.instructions.increment import INC, INX, INY
 from cpu6502.instructions.jump import JMP, JSR, RTS
 from cpu6502.instructions.load import LDA, LDX, LDY
 from cpu6502.instructions.logical import AND, EOR, ORA, BIT
-from cpu6502.instructions.misc import NOP, RES
+from cpu6502.instructions.misc import NOP, RES, BRK, RTI
 from cpu6502.instructions.shift import ASL, LSR, ROL, ROR
 from cpu6502.instructions.stack import PHA, PHP, PLA, PLP
 from cpu6502.instructions.store import STA, STX, STY
@@ -85,8 +85,9 @@ class Instructions:
             'JSR': JSR,
             'RTS': RTS,
             # MISC
+            'BRK': BRK,
             'NOP': NOP,
-            'RES': RES,
+            'RTI': RTI
         }
         self.__parse_instruction_json(filepath)
         self.cpu = cpu
