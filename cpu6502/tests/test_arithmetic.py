@@ -544,61 +544,300 @@ class TestSBC:
 @pytest.mark.usefixtures('setup_cpu')
 class TestCMP:
 
-    def test_cmp_immediate(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_immediate(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xc9  # CMP instruction
+        setup_cpu.memory[0x0201] = value
+        setup_cpu.acc = acc
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 2
 
-    def test_cmp_zero_page(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_zero_page(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xc5  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0xab] = value
+        setup_cpu.acc = acc
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 3
 
-    def test_cmp_zero_page_x(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_zero_page_x(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xd5  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0xab + 0x10] = value
+        setup_cpu.acc = acc
+        setup_cpu.idx = 0x10
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
 
-    def test_cmp_absolute(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_absolute(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xcd  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab] = value
+        setup_cpu.acc = acc
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
 
-    def test_cmp_absolute_x_no_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_absolute_x_no_page_crossed(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xdd  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab + 0x01] = value
+        setup_cpu.acc = acc
+        setup_cpu.idx = 0x01
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
 
-    def test_cmp_absolute_x_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_absolute_x_page_crossed(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xdd  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab + 0xff] = value
+        setup_cpu.acc = acc
+        setup_cpu.idx = 0xff
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
 
-    def test_cmp_absolute_y_no_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_absolute_y_no_page_crossed(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xd9  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab + 0x01] = value
+        setup_cpu.acc = acc
+        setup_cpu.idy = 0x01
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
 
-    def test_cmp_absolute_y_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_absolute_y_page_crossed(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xd9  # CMP instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab + 0xff] = value
+        setup_cpu.acc = acc
+        setup_cpu.idy = 0xff
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
 
-    def test_cmp_indexed_indirect(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_indexed_indirect(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xc1  # CMP instruction
+        setup_cpu.memory[0x0201] = 0x5e
+        setup_cpu.memory[np.ubyte(0x5e + 0x2f)] = 0xcd
+        setup_cpu.memory[np.ubyte(0x5e + 0x2f) + 1] = 0xab
+        setup_cpu.memory[0xabcd] = value
+        setup_cpu.acc = acc
+        setup_cpu.idx = 0x2f
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
-    def test_cmp_indirect_indexed_no_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_indirect_indexed_no_page_crossed(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xd1  # CMP instruction
+        setup_cpu.memory[0x0201] = 0x5e
+        setup_cpu.memory[0x5e] = 0xcd
+        setup_cpu.memory[0x5f] = 0xab
+        setup_cpu.memory[0xabcd + 0x01] = value
+        setup_cpu.acc = acc
+        setup_cpu.idy = 0x01
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
 
-    def test_cmp_indirect_indexed_page_crossed(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('acc', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cmp_indirect_indexed_page_crossed(self, setup_cpu, acc, value):
+        setup_cpu.memory[0x0200] = 0xd1  # CMP instruction
+        setup_cpu.memory[0x0201] = 0x5e
+        setup_cpu.memory[0x5e] = 0xcd
+        setup_cpu.memory[0x5f] = 0xab
+        setup_cpu.memory[0xabcd + 0xff] = value
+        setup_cpu.acc = acc
+        setup_cpu.idy = 0xff
+        expected_carry_flag = acc >= value
+        expected_zero_flag = acc == value
+        expected_negative_flag = ((acc - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
 
 @pytest.mark.usefixtures('setup_cpu')
 class TestCPX:
 
-    def test_cpx_immediate(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('idx', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cpx_immediate(self, setup_cpu, idx, value):
+        setup_cpu.memory[0x0200] = 0xe0  # CPX instruction
+        setup_cpu.memory[0x0201] = value
+        setup_cpu.idx = idx
+        expected_carry_flag = idx >= value
+        expected_zero_flag = idx == value
+        expected_negative_flag = ((idx - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 2
 
-    def test_cpx_zero_page(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('idx', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cpx_zero_page(self, setup_cpu, idx, value):
+        setup_cpu.memory[0x0200] = 0xce4  # CPX instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0xab] = value
+        setup_cpu.idx = idx
+        expected_carry_flag = idx >= value
+        expected_zero_flag = idx == value
+        expected_negative_flag = ((idx - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 3
 
-    def test_cpx_absolute(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('idx', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cpx_absolute(self, setup_cpu, idx, value):
+        setup_cpu.memory[0x0200] = 0xec  # CPX instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab] = value
+        setup_cpu.idx = idx
+        expected_carry_flag = idx >= value
+        expected_zero_flag = idx == value
+        expected_negative_flag = ((idx - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 4
 
 
 @pytest.mark.usefixtures('setup_cpu')
 class TestCPY:
 
-    def test_cpy_immediate(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('idy', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cpy_immediate(self, setup_cpu, idy, value):
+        setup_cpu.memory[0x0200] = 0xc0  # CPY instruction
+        setup_cpu.memory[0x0201] = value
+        setup_cpu.idy = idy
+        expected_carry_flag = idy >= value
+        expected_zero_flag = idy == value
+        expected_negative_flag = ((idy - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 2
 
-    def test_cpy_zero_page(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('idy', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cpy_zero_page(self, setup_cpu, idy, value):
+        setup_cpu.memory[0x0200] = 0xc4  # CPY instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0xab] = value
+        setup_cpu.idy = idy
+        expected_carry_flag = idy >= value
+        expected_zero_flag = idy == value
+        expected_negative_flag = ((idy - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 3
 
-    def test_cpy_absolute(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0xff, 0xfe, 0x54])
+    @pytest.mark.parametrize('idy', [0x0, 0x1, 0xff, 0xfe, 0x64])
+    def test_cpy_absolute(self, setup_cpu, idy, value):
+        setup_cpu.memory[0x0200] = 0xcc  # CPY instruction
+        setup_cpu.memory[0x0201] = 0xab
+        setup_cpu.memory[0x0202] = 0xcd
+        setup_cpu.memory[0xcdab] = value
+        setup_cpu.idy = idy
+        expected_carry_flag = idy >= value
+        expected_zero_flag = idy == value
+        expected_negative_flag = ((idy - value) >> 7)
+        setup_cpu.execute(1)
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 4

@@ -185,28 +185,59 @@ class CMP(cpu6502.instructions.AbstractInstruction):
         }
 
     def immediate(self):
-        pass
+        value = super(CMP, self).immediate()
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def zero_page(self):
-        pass
+        address = super(CMP, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def zero_page_x(self):
-        pass
+        address = super(CMP, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def absolute(self):
-        pass
+        address = super(CMP, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def absolute_x(self):
-        pass
+        address = super(CMP, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def absolute_y(self):
-        pass
+        address = super(CMP, self).absolute_y()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def indexed_indirect(self):
-        pass
+        address = super(CMP, self).indexed_indirect()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
     def indirect_indexed(self):
-        pass
+        address = super(CMP, self).indirect_indexed()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.acc >= value
+        self.cpu.ps['zero_flag'] = self.cpu.acc == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.acc - value) >> 7)
 
 
 class CPX(cpu6502.instructions.AbstractInstruction):
@@ -220,13 +251,24 @@ class CPX(cpu6502.instructions.AbstractInstruction):
         }
 
     def immediate(self):
-        pass
+        value = super(CPX, self).immediate()
+        self.cpu.ps['carry_flag'] = self.cpu.idx >= value
+        self.cpu.ps['zero_flag'] = self.cpu.idx == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.idx - value) >> 7)
 
     def zero_page(self):
-        pass
+        address = super(CPX, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.idx >= value
+        self.cpu.ps['zero_flag'] = self.cpu.idx == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.idx - value) >> 7)
 
     def absolute(self):
-        pass
+        address = super(CPX, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.idx >= value
+        self.cpu.ps['zero_flag'] = self.cpu.idx == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.idx - value) >> 7)
 
 
 class CPY(cpu6502.instructions.AbstractInstruction):
@@ -240,10 +282,21 @@ class CPY(cpu6502.instructions.AbstractInstruction):
         }
 
     def immediate(self):
-        pass
+        value = super(CPY, self).immediate()
+        self.cpu.ps['carry_flag'] = self.cpu.idy >= value
+        self.cpu.ps['zero_flag'] = self.cpu.idy == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.idy - value) >> 7)
 
     def zero_page(self):
-        pass
+        address = super(CPY, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.idy >= value
+        self.cpu.ps['zero_flag'] = self.cpu.idy == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.idy - value) >> 7)
 
     def absolute(self):
-        pass
+        address = super(CPY, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = self.cpu.idy >= value
+        self.cpu.ps['zero_flag'] = self.cpu.idy == value
+        self.cpu.ps['negative_flag'] = ((self.cpu.idy - value) >> 7)
