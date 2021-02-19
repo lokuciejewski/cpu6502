@@ -73,20 +73,50 @@ class LSR(cpu6502.instructions.AbstractInstruction):
             '0x5e': self.absolute_x
         }
 
+    def finalise(self):
+        self.cpu.ps['negative_flag'] = False
+
     def accumulator(self):
-        pass
+        self.cpu.ps['carry_flag'] = self.cpu.acc % 2
+        self.cpu.acc = np.ubyte(self.cpu.acc >> 1)
+        ~self.cpu.clock
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
 
     def zero_page(self):
-        pass
+        address = super(LSR, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte(value >> 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
 
     def zero_page_x(self):
-        pass
+        address = super(LSR, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte(value >> 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
 
     def absolute(self):
-        pass
+        address = super(LSR, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte(value >> 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
 
     def absolute_x(self):
-        pass
+        address = super(LSR, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = value % 2
+        final_value = np.ubyte(value >> 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
 
 
 class ROL(cpu6502.instructions.AbstractInstruction):
