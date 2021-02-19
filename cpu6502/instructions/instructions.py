@@ -3,6 +3,7 @@ import json
 from cpu6502.instructions.arithmetic import ADC, SBC, CMP, CPX, CPY
 from cpu6502.instructions.branch import BCC, BCS, BEQ, BMI, BNE, BPL, BVC, BVS
 from cpu6502.instructions.decrement import DEC, DEX, DEY
+from cpu6502.instructions.flag_change import CLC, CLD, CLI, CLV, SEC, SED, SEI
 from cpu6502.instructions.increment import INC, INX, INY
 from cpu6502.instructions.jump import JMP, JSR, RTS
 from cpu6502.instructions.load import LDA, LDX, LDY
@@ -71,6 +72,14 @@ class Instructions:
             'BPL': BPL,
             'BVC': BVC,
             'BVS': BVS,
+            # FLAG CHANGES
+            'CLC': CLC,
+            'CLD': CLD,
+            'CLI': CLI,
+            'CLV': CLV,
+            'SEC': SEC,
+            'SED': SED,
+            'SEI': SEI,
             # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
