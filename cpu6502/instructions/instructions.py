@@ -1,6 +1,7 @@
 import json
 
 from cpu6502.instructions.arithmetic import ADC, SBC, CMP, CPX, CPY
+from cpu6502.instructions.branch import BCC, BCS, BEQ, BMI, BNE, BPL, BVC, BVS
 from cpu6502.instructions.decrement import DEC, DEX, DEY
 from cpu6502.instructions.increment import INC, INX, INY
 from cpu6502.instructions.jump import JMP, JSR, RTS
@@ -61,6 +62,15 @@ class Instructions:
             'LSR': LSR,
             'ROL': ROL,
             'ROR': ROR,
+            # BRANCHES
+            'BCC': BCC,
+            'BCS': BCS,
+            'BEQ': BEQ,
+            'BMI': BMI,
+            'BNE': BNE,
+            'BPL': BPL,
+            'BVC': BVC,
+            'BVS': BVS,
             # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
