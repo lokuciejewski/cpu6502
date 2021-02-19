@@ -58,7 +58,7 @@ class TestINC:
         assert setup_cpu.memory[0xa4] == end_val
         assert setup_cpu.ps['zero_flag'] == expected_zero_flag
         assert setup_cpu.ps['negative_flag'] == expected_negative_flag
-        assert setup_cpu.clock.total_clock_cycles == 6
+        assert setup_cpu.clock.total_clock_cycles == 7
 
 
 @pytest.mark.usefixtures('setup_cpu')
@@ -82,7 +82,7 @@ class TestINY:
 
     @pytest.mark.parametrize('start_val, end_val', [(0x0, 0x1), (0x1, 0x2), (0xab, 0xac), (0xfe, 0xff), (0xff, 0x0)])
     def test_iny_implied(self, setup_cpu, start_val, end_val):
-        setup_cpu.memory[0x0200] = 0xe8  # INX instruction
+        setup_cpu.memory[0x0200] = 0xe8  # INY instruction
         setup_cpu.idy = start_val
         expected_zero_flag = end_val == 0
         expected_negative_flag = (end_val >> 7) == 1
