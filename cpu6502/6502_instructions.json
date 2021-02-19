@@ -1,12 +1,5 @@
 [
    {
-      "bytes": "0",
-      "description": "Reset the cpu",
-      "name": "RES",
-      "opcode": "$BB",
-      "mode": "Implied"
-   },
-   {
       "bytes" : "2",
       "description" : "Add with Carry",
       "name" : "ADC",

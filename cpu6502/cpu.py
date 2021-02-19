@@ -50,9 +50,9 @@ class CPU(object):
         self.ps = {
             'carry_flag': bool(),
             'zero_flag': bool(),
-            'interrupt_disable': bool(),
-            'decimal_mode': bool(),
-            'break_command': bool(),
+            'interrupt_flag': bool(),
+            'decimal_flag': bool(),
+            'break_flag': bool(),
             'overflow_flag': bool(),
             'negative_flag': bool()
         }
@@ -87,9 +87,9 @@ class CPU(object):
         self.acc = 0
         self.idx = 0
         self.idy = 0
-        self.ps['interrupt_disable'] = True
+        self.ps['interrupt_flag'] = True
         # transfer .X to stack
-        self.ps['decimal_mode'] = False
+        self.ps['decimal_flag'] = False
         # check for cartridge
         ~self.clock
         # if .Z == 0 then no cartridge detected
@@ -103,13 +103,18 @@ class CPU(object):
         # set system IRQ to correct value and start
         pc_address = self.fetch_word()
         self.pc = int(pc_address, base=0)
-        self.ps['interrupt_disable'] = False
+        self.ps['interrupt_flag'] = False
         print('=========== RESET ===========')
 
     def convert_ps_to_binary(self) -> np.ubyte:
         res = 0b0
-        for i, (name, bit) in enumerate(self.ps.items()):
-            res += bit << (6 - i)
+        res += (self.ps['carry_flag'] << 6)
+        res += (self.ps['zero_flag'] << 5)
+        res += (self.ps['interrupt_flag'] << 4)
+        res += (self.ps['decimal_flag'] << 3)
+        res += (self.ps['break_flag'] << 2)
+        res += (self.ps['overflow_flag'] << 1)
+        res += self.ps['negative_flag']
         return np.ubyte(res)
 
     def convert_binary_to_ps(self) -> None:
@@ -117,9 +122,9 @@ class CPU(object):
         temp_ps = bin(bin_ps)[2:].zfill(7)  # str representation of 7 bits
         self.ps['carry_flag'] = bool(int(temp_ps[0]))
         self.ps['zero_flag'] = bool(int(temp_ps[1]))
-        self.ps['interrupt_disable'] = bool(int(temp_ps[2]))
-        self.ps['decimal_mode'] = bool(int(temp_ps[3]))
-        self.ps['break_command'] = bool(int(temp_ps[4]))
+        self.ps['interrupt_flag'] = bool(int(temp_ps[2]))
+        self.ps['decimal_flag'] = bool(int(temp_ps[3]))
+        self.ps['break_flag'] = bool(int(temp_ps[4]))
         self.ps['overflow_flag'] = bool(int(temp_ps[5]))
         self.ps['negative_flag'] = bool(int(temp_ps[6]))
 

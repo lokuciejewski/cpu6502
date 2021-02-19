@@ -26,34 +26,34 @@ class TestCPU:
         assert cpu.acc == 0x0
         assert cpu.idx == 0x0
         assert cpu.idy == 0x0
-        assert not cpu.ps['interrupt_disable']
-        assert not cpu.ps['decimal_mode']
+        assert not cpu.ps['interrupt_flag']
+        assert not cpu.ps['decimal_flag']
         assert cpu.clock.total_clock_cycles == 7
 
     @pytest.mark.parametrize('ps, result', [({
                                                  'carry_flag': True,
                                                  'zero_flag': True,
-                                                 'interrupt_disable': False,
-                                                 'decimal_mode': True,
-                                                 'break_command': False,
+                                                 'interrupt_flag': False,
+                                                 'decimal_flag': True,
+                                                 'break_flag': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': True
                                              }, 0b01101001),
                                             ({
                                                  'carry_flag': False,
                                                  'zero_flag': False,
-                                                 'interrupt_disable': False,
-                                                 'decimal_mode': False,
-                                                 'break_command': False,
+                                                 'interrupt_flag': False,
+                                                 'decimal_flag': False,
+                                                 'break_flag': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
                                              }, 0b00000000),
                                             ({
                                                  'carry_flag': True,
                                                  'zero_flag': True,
-                                                 'interrupt_disable': True,
-                                                 'decimal_mode': True,
-                                                 'break_command': True,
+                                                 'interrupt_flag': True,
+                                                 'decimal_flag': True,
+                                                 'break_flag': True,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
                                              }, 0b01111111)])
@@ -65,27 +65,27 @@ class TestCPU:
     @pytest.mark.parametrize('result, bin_ps', [({
                                                      'carry_flag': True,
                                                      'zero_flag': True,
-                                                     'interrupt_disable': False,
-                                                     'decimal_mode': True,
-                                                     'break_command': False,
+                                                     'interrupt_flag': False,
+                                                     'decimal_flag': True,
+                                                     'break_flag': False,
                                                      'overflow_flag': False,
                                                      'negative_flag': True
                                                  }, 0b01101001),
                                                 ({
                                                      'carry_flag': False,
                                                      'zero_flag': False,
-                                                     'interrupt_disable': False,
-                                                     'decimal_mode': False,
-                                                     'break_command': False,
+                                                     'interrupt_flag': False,
+                                                     'decimal_flag': False,
+                                                     'break_flag': False,
                                                      'overflow_flag': False,
                                                      'negative_flag': False
                                                  }, 0b00000000),
                                                 ({
                                                      'carry_flag': True,
                                                      'zero_flag': True,
-                                                     'interrupt_disable': True,
-                                                     'decimal_mode': True,
-                                                     'break_command': True,
+                                                     'interrupt_flag': True,
+                                                     'decimal_flag': True,
+                                                     'break_flag': True,
                                                      'overflow_flag': True,
                                                      'negative_flag': True
                                                  }, 0b01111111)])
