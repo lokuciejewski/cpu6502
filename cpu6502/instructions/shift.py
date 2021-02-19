@@ -1,3 +1,5 @@
+import numpy as np
+
 import cpu6502.instructions
 
 
@@ -13,19 +15,51 @@ class ASL(cpu6502.instructions.AbstractInstruction):
         }
 
     def accumulator(self):
-        pass
+        self.cpu.ps['carry_flag'] = (self.cpu.acc >> 7)
+        self.cpu.acc = np.ubyte(self.cpu.acc << 1)
+        ~self.cpu.clock
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+        self.cpu.ps['negative_flag'] = (self.cpu.acc >> 7) == 1
 
     def zero_page(self):
-        pass
+        address = super(ASL, self).zero_page()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte(value << 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def zero_page_x(self):
-        pass
+        address = super(ASL, self).zero_page_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte(value << 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def absolute(self):
-        pass
+        address = super(ASL, self).absolute()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte(value << 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
     def absolute_x(self):
-        pass
+        address = super(ASL, self).absolute_x()
+        value = int(self.cpu.read_byte(address), base=0)
+        self.cpu.ps['carry_flag'] = (value >> 7)
+        final_value = np.ubyte(value << 1)
+        ~self.cpu.clock
+        self.cpu.write_byte(address, final_value)
+        self.cpu.ps['zero_flag'] = final_value == 0
+        self.cpu.ps['negative_flag'] = (final_value >> 7) == 1
 
 
 class LSR(cpu6502.instructions.AbstractInstruction):
