@@ -7,6 +7,7 @@ from cpu6502.instructions.jump import JMP, JSR, RTS
 from cpu6502.instructions.load import LDA, LDX, LDY
 from cpu6502.instructions.logical import AND, EOR, ORA, BIT
 from cpu6502.instructions.misc import NOP, RES
+from cpu6502.instructions.shift import ASL, LSR, ROL, ROR
 from cpu6502.instructions.stack import PHA, PHP, PLA, PLP
 from cpu6502.instructions.store import STA, STX, STY
 from cpu6502.instructions.transfer import TAX, TAY, TXA, TYA, TSX, TXS
@@ -55,6 +56,11 @@ class Instructions:
             'DEC': DEC,
             'DEX': DEX,
             'DEY': DEY,
+            # SHIFTS
+            'ASL': ASL,
+            'LSR': LSR,
+            'ROL': ROL,
+            'ROR': ROR,
             # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
