@@ -1,6 +1,7 @@
 import json
 
 from cpu6502.instructions.arithmetic import ADC, SBC, CMP, CPX, CPY
+from cpu6502.instructions.increment import INC, INX, INY
 from cpu6502.instructions.jump import JMP, JSR, RTS
 from cpu6502.instructions.load import LDA, LDX, LDY
 from cpu6502.instructions.logical import AND, EOR, ORA, BIT
@@ -46,6 +47,10 @@ class Instructions:
             'CMP': CMP,
             'CPX': CPX,
             'CPY': CPY,
+            # INCREMENT AND DECREMENT
+            'INC': INC,
+            'INX': INX,
+            'INY': INY,
             # JUMP AND CALLS
             'JMP': JMP,
             'JSR': JSR,
