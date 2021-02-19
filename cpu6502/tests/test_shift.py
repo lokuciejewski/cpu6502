@@ -174,36 +174,193 @@ class TestLSR:
 @pytest.mark.usefixtures('setup_cpu')
 class TestROL:
 
-    def test_rol_accumulator(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_rol_accumulator(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x0a  # ASL instruction
+        setup_cpu.acc = value
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value << 1) + carry_flag)
+        expected_carry_flag = (value >> 7)
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 2
 
-    def test_rol_zero_page(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_rol_zero_page(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x0a  # ASL instruction
+        setup_cpu.memory[0x0201] = 0x27
+        setup_cpu.memory[0x27] = value
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value << 1) + carry_flag)
+        expected_carry_flag = (value >> 7)
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x27] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
 
-    def test_rol_zero_page_x(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_rol_zero_page_x(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x0a  # ASL instruction
+        setup_cpu.memory[0x0201] = 0x27
+        setup_cpu.memory[0x27 + 0x69] = value
+        setup_cpu.idx = 0x69
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value << 1) + carry_flag)
+        expected_carry_flag = (value >> 7)
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x27 + 0x69] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
-    def test_rol_absolute(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_rol_absolute(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x0a  # ASL instruction
+        setup_cpu.memory[0x0201] = 0x75
+        setup_cpu.memory[0x0202] = 0x09
+        setup_cpu.memory[0x0927] = value
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value << 1) + carry_flag)
+        expected_carry_flag = (value >> 7)
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x0927] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
-    def test_rol_absolute_x(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_rol_absolute_x(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x0a  # ASL instruction
+        setup_cpu.memory[0x0201] = 0x75
+        setup_cpu.memory[0x0202] = 0x09
+        setup_cpu.memory[0x0927 + 0x89] = value
+        setup_cpu.idx = 0x89
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value << 1) + carry_flag)
+        expected_carry_flag = (value >> 7)
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x0927 + 0x89] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
 
 @pytest.mark.usefixtures('setup_cpu')
 class TestROR:
 
-    def test_ror_accumulator(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_ror_accumulator(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x6a  # ROR instruction
+        setup_cpu.acc = value
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value >> 1) + (carry_flag << 7))
+        expected_carry_flag = value % 2
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.acc == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 2
 
-    def test_ror_zero_page(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_ror_zero_page(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x66  # ROR instruction
+        setup_cpu.memory[0x0201] = 0x27
+        setup_cpu.memory[0x27] = value
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value >> 1) + (carry_flag << 7))
+        expected_carry_flag = value % 2
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x27] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 5
 
-    def test_ror_zero_page_x(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_ror_zero_page_x(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x76  # ROR instruction
+        setup_cpu.memory[0x0201] = 0x27
+        setup_cpu.memory[0x27 + 0x69] = value
+        setup_cpu.idx = 0x69
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value >> 1) + (carry_flag << 7))
+        expected_carry_flag = value % 2
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x27 + 0x69] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
-    def test_ror_absolute(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_ror_absolute(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x6e  # ROR instruction
+        setup_cpu.memory[0x0201] = 0x75
+        setup_cpu.memory[0x0202] = 0x09
+        setup_cpu.memory[0x0927] = value
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value >> 1) + (carry_flag << 7))
+        expected_carry_flag = value % 2
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x0927] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
 
-    def test_ror_absolute_x(self, setup_cpu):
-        pass
+    @pytest.mark.parametrize('value', [0x0, 0x1, 0x40, 0xaa, 0xaf, 0xfe, 0xff, 0x7f])
+    @pytest.mark.parametrize('carry_flag', [False, True])
+    def test_ror_absolute_x(self, setup_cpu, value, carry_flag):
+        setup_cpu.memory[0x0200] = 0x7e  # ROR instruction
+        setup_cpu.memory[0x0200] = 0x7e  # ROR instruction
+        setup_cpu.memory[0x0201] = 0x75
+        setup_cpu.memory[0x0202] = 0x09
+        setup_cpu.memory[0x0927 + 0x89] = value
+        setup_cpu.idx = 0x89
+        setup_cpu.ps['carry_flag'] = carry_flag
+        expected_value = np.ubyte((value >> 1) + (carry_flag << 7))
+        expected_carry_flag = value % 2
+        expected_zero_flag = expected_value == 0
+        expected_negative_flag = (expected_value >> 7) == 1
+        setup_cpu.execute(1)
+        assert setup_cpu.memory[0x0927 + 0x89] == expected_value
+        assert setup_cpu.ps['carry_flag'] == expected_carry_flag
+        assert setup_cpu.ps['zero_flag'] == expected_zero_flag
+        assert setup_cpu.ps['negative_flag'] == expected_negative_flag
+        assert setup_cpu.clock.total_clock_cycles == 6
