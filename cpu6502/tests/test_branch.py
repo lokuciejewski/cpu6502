@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 
@@ -12,18 +13,17 @@ class TestBCC:
         setup_cpu.pc = pc
         setup_cpu.ps['carry_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bcc_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0x90  # BCC instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['carry_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -49,18 +49,17 @@ class TestBCS:
         setup_cpu.pc = pc
         setup_cpu.ps['carry_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bcs_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0xb0  # BCS instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['carry_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -86,18 +85,17 @@ class TestBEQ:
         setup_cpu.pc = pc
         setup_cpu.ps['zero_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_beq_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0xf0  # BEQ instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['zero_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -123,18 +121,17 @@ class TestBMI:
         setup_cpu.pc = pc
         setup_cpu.ps['negative_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bmi_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0x30  # BMI instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['negative_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -160,18 +157,17 @@ class TestBNE:
         setup_cpu.pc = pc
         setup_cpu.ps['zero_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bne_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0xd0  # BNE instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['zero_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -197,18 +193,17 @@ class TestBPL:
         setup_cpu.pc = pc
         setup_cpu.ps['negative_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bpl_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0x10  # BPL instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['negative_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -234,18 +229,17 @@ class TestBVC:
         setup_cpu.pc = pc
         setup_cpu.ps['overflow_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bvc_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0x50  # BVC instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['overflow_flag'] = False
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
@@ -271,18 +265,17 @@ class TestBVS:
         setup_cpu.pc = pc
         setup_cpu.ps['overflow_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 3
 
-    @pytest.mark.parametrize('pc', [0x0, 0x1, 0x105, 0xff00, 0xfe12])
-    @pytest.mark.parametrize('offset', [0xff, 0xfe])
+    @pytest.mark.parametrize('pc, offset', [(0x0, 0xf1), (0x10ee, 0x7f), (0xff00, 0x91)])
     def test_bvs_page_crossed_successful(self, setup_cpu, pc, offset):
         setup_cpu.memory[pc] = 0x70  # BVS instruction
         setup_cpu.memory[pc + 1] = offset
         setup_cpu.pc = pc
         setup_cpu.ps['overflow_flag'] = True
         setup_cpu.execute(1)
-        assert setup_cpu.pc == pc + 2 + offset
+        assert setup_cpu.pc == pc + 2 + np.byte(offset)
         assert setup_cpu.clock.total_clock_cycles == 4
 
     @pytest.mark.parametrize('pc', [0x0, 0x1, 0xfe12])
