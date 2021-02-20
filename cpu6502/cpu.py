@@ -53,6 +53,7 @@ class CPU(object):
             'interrupt_flag': bool(),
             'decimal_flag': bool(),
             'break_flag': bool(),
+            'reserved': bool(),
             'overflow_flag': bool(),
             'negative_flag': bool()
         }
@@ -107,6 +108,7 @@ class CPU(object):
         self.ps['carry_flag'] = False
         self.ps['zero_flag'] = self.acc == 0
         self.ps['break_flag'] = False
+        self.ps['reserved'] = False
         self.ps['overflow_flag'] = False
         print('=========== RESET ===========')
 
@@ -117,8 +119,9 @@ class CPU(object):
         res += (self.ps['interrupt_flag'] << 2)
         res += (self.ps['decimal_flag'] << 3)
         res += (self.ps['break_flag'] << 4)
-        res += (self.ps['overflow_flag'] << 5)
-        res += (self.ps['negative_flag'] << 6)
+        res += (self.ps['reserved'] << 5)
+        res += (self.ps['overflow_flag'] << 6)
+        res += (self.ps['negative_flag'] << 7)
         self.push_byte_on_stack(np.ubyte(res))
 
     def pull_ps_from_stack(self) -> None:
@@ -129,8 +132,9 @@ class CPU(object):
         self.ps['interrupt_flag'] = bool(int(temp_ps[-3]))
         self.ps['decimal_flag'] = bool(int(temp_ps[-4]))
         self.ps['break_flag'] = bool(int(temp_ps[-5]))
-        self.ps['overflow_flag'] = bool(int(temp_ps[-6]))
-        self.ps['negative_flag'] = bool(int(temp_ps[-7]))
+        self.ps['reserved'] = bool(int(temp_ps[-6]))
+        self.ps['overflow_flag'] = bool(int(temp_ps[-7]))
+        self.ps['negative_flag'] = bool(int(temp_ps[-8]))
 
     def execute(self, number_of_instructions: int) -> None:
         for i in range(number_of_instructions):

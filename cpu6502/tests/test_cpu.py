@@ -36,24 +36,27 @@ class TestCPU:
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': True
-                                             }, 0b01001011),
+                                             }, 0b10001011),
                                             ({
                                                  'carry_flag': True,
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': True,
                                                  'negative_flag': False
-                                             }, 0b00101001),
+                                             }, 0b01001001),
                                             ({
                                                  'carry_flag': False,
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': False,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
                                              }, 0b00000000),
@@ -63,9 +66,10 @@ class TestCPU:
                                                  'interrupt_flag': True,
                                                  'decimal_flag': True,
                                                  'break_flag': True,
+                                                 'reserved': True,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
-                                             }, 0b01111111)])
+                                             }, 0b11111111)])
     def test_cpu_push_ps_on_stack(self, setup_cpu, ps, result):
         setup_cpu.ps = ps
         setup_cpu.push_ps_on_stack()
@@ -78,15 +82,17 @@ class TestCPU:
                                                      'interrupt_flag': False,
                                                      'decimal_flag': True,
                                                      'break_flag': False,
+                                                     'reserved': False,
                                                      'overflow_flag': True,
                                                      'negative_flag': True
-                                                 }, 0b01101001),
+                                                 }, 0b11001001),
                                                 ({
                                                      'carry_flag': False,
                                                      'zero_flag': False,
                                                      'interrupt_flag': False,
                                                      'decimal_flag': False,
                                                      'break_flag': False,
+                                                     'reserved': False,
                                                      'overflow_flag': False,
                                                      'negative_flag': False
                                                  }, 0b00000000),
@@ -96,9 +102,10 @@ class TestCPU:
                                                      'interrupt_flag': True,
                                                      'decimal_flag': True,
                                                      'break_flag': True,
+                                                     'reserved': True,
                                                      'overflow_flag': True,
                                                      'negative_flag': True
-                                                 }, 0b01111111)])
+                                                 }, 0b11111111)])
     @pytest.mark.parametrize('sp', [0x0, 0xf1, 0xfe])
     def test_cpu_pull_ps_from_stack(self, setup_cpu, result, bin_ps, sp):
         setup_cpu.sp = sp

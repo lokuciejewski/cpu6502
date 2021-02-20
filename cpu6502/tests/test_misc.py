@@ -12,15 +12,17 @@ class TestBRK:
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': True
-                                             }, 0b01001011),
+                                             }, 0b10001011),
                                             ({
                                                  'carry_flag': False,
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': False,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
                                              }, 0b00000000),
@@ -30,9 +32,10 @@ class TestBRK:
                                                  'interrupt_flag': True,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
-                                             }, 0b01101111)])
+                                             }, 0b11001111)])
     @pytest.mark.parametrize('iv_fst, iv_snd', [(0x25, 0x00), (0xa1, 0x44), (0xff, 0x0f)])
     def test_brk_implied(self, setup_cpu, pc_fst, pc_snd, ps, bin_ps, iv_fst, iv_snd):
         pc = pc_snd + (pc_fst << 8)
@@ -75,15 +78,17 @@ class TestRTI:
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
-                                             }, 0b01101001),
+                                             }, 0b11001001),
                                             ({
                                                  'carry_flag': False,
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': False,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
                                              }, 0b00000000),
@@ -93,9 +98,10 @@ class TestRTI:
                                                  'interrupt_flag': True,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
+                                                 'reserved': False,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
-                                             }, 0b01101111)])
+                                             }, 0b11001111)])
     def test_rti_implied(self, setup_cpu, pc_fst, pc_snd, ps, bin_ps):
         setup_cpu.memory[0x0200] = 0x40  # RTI instruction
         setup_cpu.sp = 0x60
