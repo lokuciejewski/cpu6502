@@ -6,19 +6,18 @@ from cpu6502.memory import Memory
 if __name__ == '__main__':
     cpu = CPU(speed_mhz=1)
     memory = Memory()
-    memory[0xfffc] = 0x00
-    memory[0xfffd] = 0x02
-    memory[0x0200] = 0xa9  # LDA 0x10
-    memory[0x0201] = 0x10
-    memory[0x0202] = 0xe9  # SBC 0x01
-    memory[0x0203] = 0x04
+    memory.load_binary_file('cpu6502/tests/6502_functional_test.bin', start_offset=0xa)
 
     with patch.object(CPU, 'initialise_memory'):
         cpu.memory = memory
         cpu.reset()
+        cpu.pc = 0x400
         print(cpu)
 
+    pc_ver = cpu.pc
     while True:
-        input()
         cpu.execute(1)
         print(cpu)
+        if pc_ver == cpu.pc:
+            input('Program Counter may be trapped!')
+        pc_ver = cpu.pc

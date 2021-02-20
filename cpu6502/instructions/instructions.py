@@ -107,7 +107,8 @@ class Instructions:
                     self.opcodes[opcode] = self.internal_assignment[instruction['name']]
                 except KeyError:
                     not_supported.add(instruction['name'])
-        print(f'Unsupported instructions ({len(not_supported)}): {not_supported}')
+        if len(not_supported) > 0:
+            print(f'Unsupported instructions ({len(not_supported)}): {not_supported}')
 
     def execute(self, opcode: str):
         instruction = self.opcodes[opcode](self.cpu)
