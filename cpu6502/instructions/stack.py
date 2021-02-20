@@ -22,8 +22,7 @@ class PHP(cpu6502.instructions.AbstractInstruction):
         }
 
     def implied(self):
-        bin_ps = self.cpu.convert_ps_to_binary()
-        self.cpu.push_byte_on_stack(bin_ps)
+        self.cpu.push_ps_on_stack()
 
 
 class PLA(cpu6502.instructions.AbstractInstruction):
@@ -47,4 +46,4 @@ class PLP(cpu6502.instructions.AbstractInstruction):
         }
 
     def implied(self):
-        self.cpu.convert_binary_to_ps()
+        self.cpu.pull_ps_from_stack()

@@ -104,29 +104,33 @@ class CPU(object):
         pc_address = self.fetch_word()
         self.pc = int(pc_address, base=0)
         self.ps['interrupt_flag'] = False
+        self.ps['carry_flag'] = False
+        self.ps['zero_flag'] = self.acc == 0
+        self.ps['break_flag'] = False
+        self.ps['overflow_flag'] = False
         print('=========== RESET ===========')
 
-    def convert_ps_to_binary(self) -> np.ubyte:
-        res = 0b0
-        res += (self.ps['carry_flag'] << 6)
-        res += (self.ps['zero_flag'] << 5)
-        res += (self.ps['interrupt_flag'] << 4)
+    def push_ps_on_stack(self) -> None:
+        res = 0
+        res += self.ps['carry_flag']
+        res += (self.ps['zero_flag'] << 1)
+        res += (self.ps['interrupt_flag'] << 2)
         res += (self.ps['decimal_flag'] << 3)
-        res += (self.ps['break_flag'] << 2)
-        res += (self.ps['overflow_flag'] << 1)
-        res += self.ps['negative_flag']
-        return np.ubyte(res)
+        res += (self.ps['break_flag'] << 4)
+        res += (self.ps['overflow_flag'] << 5)
+        res += (self.ps['negative_flag'] << 6)
+        self.push_byte_on_stack(np.ubyte(res))
 
-    def convert_binary_to_ps(self) -> None:
+    def pull_ps_from_stack(self) -> None:
         bin_ps = int(self.pull_byte_from_stack(), base=0)
-        temp_ps = bin(bin_ps)[2:].zfill(7)  # str representation of 7 bits
-        self.ps['carry_flag'] = bool(int(temp_ps[0]))
-        self.ps['zero_flag'] = bool(int(temp_ps[1]))
-        self.ps['interrupt_flag'] = bool(int(temp_ps[2]))
-        self.ps['decimal_flag'] = bool(int(temp_ps[3]))
-        self.ps['break_flag'] = bool(int(temp_ps[4]))
-        self.ps['overflow_flag'] = bool(int(temp_ps[5]))
-        self.ps['negative_flag'] = bool(int(temp_ps[6]))
+        temp_ps = bin(bin_ps)[2:].zfill(8)  # str representation of 7 bits
+        self.ps['carry_flag'] = bool(int(temp_ps[-1]))
+        self.ps['zero_flag'] = bool(int(temp_ps[-2]))
+        self.ps['interrupt_flag'] = bool(int(temp_ps[-3]))
+        self.ps['decimal_flag'] = bool(int(temp_ps[-4]))
+        self.ps['break_flag'] = bool(int(temp_ps[-5]))
+        self.ps['overflow_flag'] = bool(int(temp_ps[-6]))
+        self.ps['negative_flag'] = bool(int(temp_ps[-7]))
 
     def execute(self, number_of_instructions: int) -> None:
         for i in range(number_of_instructions):
@@ -241,9 +245,9 @@ class CPU(object):
         try:
             if self.sp >= 0xff:
                 raise IndexError
-            data = self.memory[self.sp + 0x0100]
             ~self.clock
             self.sp += 1
+            data = self.memory[self.sp + 0x0100]
             # Two extra cycles for each pop operation according to
             # https://wiki.nesdev.com/w/index.php/Cycle_counting
             ~self.clock
