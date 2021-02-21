@@ -34,7 +34,11 @@ class PLA(cpu6502.instructions.AbstractInstruction):
         }
 
     def implied(self):
+        if self.cpu.pc == 0x0672:
+            print('xd')
         self.cpu.acc = int(self.cpu.pull_byte_from_stack(), base=0)
+        self.cpu.ps['zero_flag'] = self.cpu.acc == 0
+        self.cpu.ps['negative_flag'] = (self.cpu.acc >> 7) == 1
 
 
 class PLP(cpu6502.instructions.AbstractInstruction):

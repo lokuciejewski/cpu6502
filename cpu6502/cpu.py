@@ -113,13 +113,19 @@ class CPU(object):
         print('=========== RESET ===========')
 
     def push_ps_on_stack(self) -> None:
+        # Those flags should be set to 1 whenever ps is pushed (fao in 6502 functional test)
         res = 0
         res += self.ps['carry_flag']
         res += (self.ps['zero_flag'] << 1)
         res += (self.ps['interrupt_flag'] << 2)
         res += (self.ps['decimal_flag'] << 3)
+        # Break flag -> pushed always as 1 ->
+        # https://wiki.nesdev.com/w/index.php/Status_flags
         res += (self.ps['break_flag'] << 4)
+        # res += (1 << 4)
+        # Reserved -> same as break flag
         res += (self.ps['reserved'] << 5)
+        # res += (1 << 5)
         res += (self.ps['overflow_flag'] << 6)
         res += (self.ps['negative_flag'] << 7)
         self.push_byte_on_stack(np.ubyte(res))
@@ -131,8 +137,12 @@ class CPU(object):
         self.ps['zero_flag'] = bool(int(temp_ps[-2]))
         self.ps['interrupt_flag'] = bool(int(temp_ps[-3]))
         self.ps['decimal_flag'] = bool(int(temp_ps[-4]))
-        self.ps['break_flag'] = bool(int(temp_ps[-5]))
-        self.ps['reserved'] = bool(int(temp_ps[-6]))
+        # Ignored according to https://wiki.nesdev.com/w/index.php/Status_flags
+        # self.ps['break_flag'] = bool(int(temp_ps[-5]))
+        # Weird but setting it to True passed the test - may be bugged?
+        self.ps['break_flag'] = True
+        # self.ps['reserved'] = bool(int(temp_ps[-6]))
+        self.ps['reserved'] = True
         self.ps['overflow_flag'] = bool(int(temp_ps[-7]))
         self.ps['negative_flag'] = bool(int(temp_ps[-8]))
 
@@ -231,10 +241,10 @@ class CPU(object):
         try:
             if self.sp <= 0x01:  # Can't write a word here if there is not enough space on the stack
                 raise IndexError
-            self.memory[self.sp + 0x0100] = value
+            self.memory[self.sp + 0x0100] = (value >> 8)
             ~self.clock
             self.sp -= 1
-            self.memory[self.sp + 0x0100] = (value >> 8)
+            self.memory[self.sp + 0x0100] = value
             ~self.clock
             self.sp -= 1
             # One extra cycle for each push operation according to

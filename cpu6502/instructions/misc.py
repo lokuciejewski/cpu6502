@@ -11,10 +11,11 @@ class BRK(cpu6502.instructions.AbstractInstruction):
 
     def implied(self):
         self.cpu.push_word_on_stack(self.cpu.pc)
+        self.cpu.ps['break_flag'] = True
         self.cpu.push_ps_on_stack()
         self.cpu.pc = int(self.cpu.read_word(0xfffe), base=0)
-        self.cpu.ps['break_flag'] = True
         self.cpu.clock.total_clock_cycles -= 1  # Weird but needed to be done
+        self.cpu.ps['interrupt_flag'] = True
 
 
 class NOP(cpu6502.instructions.AbstractInstruction):
@@ -26,7 +27,6 @@ class NOP(cpu6502.instructions.AbstractInstruction):
         }
 
     def implied(self):
-        self.cpu.pc += 1
         ~self.cpu.clock
 
 

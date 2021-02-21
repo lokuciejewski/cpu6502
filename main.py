@@ -4,7 +4,7 @@ from cpu6502.cpu import CPU
 from cpu6502.memory import Memory
 
 if __name__ == '__main__':
-    cpu = CPU(speed_mhz=1)
+    cpu = CPU(speed_mhz=0)
     memory = Memory()
     memory.load_binary_file('cpu6502/tests/6502_functional_test.bin', start_offset=0xa)
 
@@ -17,7 +17,10 @@ if __name__ == '__main__':
     pc_ver = cpu.pc
     while True:
         cpu.execute(1)
-        print(cpu)
         if pc_ver == cpu.pc:
+            print(cpu)
             input('Program Counter may be trapped!')
+        if cpu.pc == 0xffff:
+            print('Program finished')
+            break
         pc_ver = cpu.pc

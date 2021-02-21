@@ -32,6 +32,7 @@ class AbstractInstruction:
         Method to specify events that happen for every type of addressing after the instruction is executed
         :return: None
         """
+        self.cpu.ps['reserved'] = True
         pass
 
     # All addressing modes pushed here for easier and faster testing
