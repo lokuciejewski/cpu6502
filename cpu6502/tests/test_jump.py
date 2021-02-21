@@ -42,7 +42,7 @@ class TestJSR:
         setup_cpu.memory[start_address + 2] = 0x23
         setup_cpu.execute(1)
         assert setup_cpu.pc == 0x23aa
-        stored_address = setup_cpu.memory[setup_cpu.sp + 0x0102] + (setup_cpu.memory[setup_cpu.sp + 0x0101] << 8)
+        stored_address = (setup_cpu.memory[setup_cpu.sp + 0x0102] << 8) + setup_cpu.memory[setup_cpu.sp + 0x0101]
         assert stored_address == start_address + 2  # To compensate for the word reading
         assert setup_cpu.clock.total_clock_cycles == 6
 

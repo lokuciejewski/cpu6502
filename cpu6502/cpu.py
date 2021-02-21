@@ -108,24 +108,18 @@ class CPU(object):
         self.ps['carry_flag'] = False
         self.ps['zero_flag'] = self.acc == 0
         self.ps['break_flag'] = False
-        self.ps['reserved'] = False
+        self.ps['reserved'] = True
         self.ps['overflow_flag'] = False
         print('=========== RESET ===========')
 
     def push_ps_on_stack(self) -> None:
-        # Those flags should be set to 1 whenever ps is pushed (fao in 6502 functional test)
         res = 0
         res += self.ps['carry_flag']
         res += (self.ps['zero_flag'] << 1)
         res += (self.ps['interrupt_flag'] << 2)
         res += (self.ps['decimal_flag'] << 3)
-        # Break flag -> pushed always as 1 ->
-        # https://wiki.nesdev.com/w/index.php/Status_flags
         res += (self.ps['break_flag'] << 4)
-        # res += (1 << 4)
-        # Reserved -> same as break flag
         res += (self.ps['reserved'] << 5)
-        # res += (1 << 5)
         res += (self.ps['overflow_flag'] << 6)
         res += (self.ps['negative_flag'] << 7)
         self.push_byte_on_stack(np.ubyte(res))
@@ -154,7 +148,8 @@ class CPU(object):
             try:
                 self.instructions.execute(instruction)
             except KeyError:
-                print(f'Instruction {instruction} not recognised. Skipping...')
+                if instruction != '0xff':
+                    print(f'Instruction {instruction} not recognised. Skipping...')
 
     def fetch_byte(self) -> hex:
         try:

@@ -17,6 +17,7 @@ class AbstractInstruction:
         """
         self.opcodes = {}
         self.cpu = cpu
+        self.cpu.ps['reserved'] = True
         pass
 
     def execute(self, opcode: str):

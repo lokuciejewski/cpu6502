@@ -11,7 +11,10 @@ class TestFunctional:
 
     def test_functional(self, setup_cpu):
         memory = Memory()
-        memory.load_binary_file('cpu6502/tests/6502_functional_test.bin', start_offset=0xa)
+        try:
+            memory.load_binary_file('6502_functional_test.bin', start_offset=0xa)
+        except FileNotFoundError:
+            memory.load_binary_file('cpu6502/tests/6502_functional_test.bin', start_offset=0xa)
         with patch.object(CPU, 'initialise_memory'):
             setup_cpu.memory = memory
             setup_cpu.reset()

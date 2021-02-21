@@ -6,7 +6,7 @@ from cpu6502.cpu import CPU
 from cpu6502.memory import Memory
 
 
-@pytest.fixture()
+@pytest.fixture(scope='function')
 def setup_cpu() -> CPU:
     """
     Fixture for setting up the 6502 cpu. All tests should run write their programs to memory starting from 0x0200

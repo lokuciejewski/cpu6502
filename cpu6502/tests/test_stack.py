@@ -25,30 +25,30 @@ class TestPHP:
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
-                                                 'reserved': False,
+                                                 'reserved': True,
                                                  'overflow_flag': False,
                                                  'negative_flag': True
-                                            }, 0b10001011),
+                                            }, 0b10101011),
                                             ({
                                                  'carry_flag': False,
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': False,
                                                  'break_flag': False,
-                                                 'reserved': False,
+                                                 'reserved': True,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
-                                             }, 0b00000000),
+                                             }, 0b00100000),
                                             ({
                                                  'carry_flag': True,
                                                  'zero_flag': True,
                                                  'interrupt_flag': True,
                                                  'decimal_flag': True,
                                                  'break_flag': True,
-                                                 'reserved': False,
+                                                 'reserved': True,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
-                                             }, 0b11011111)])
+                                             }, 0b11111111)])
     @pytest.mark.parametrize('sp', [0x1, 0xfe, 0xff, 0x10])
     def test_php_implied(self, setup_cpu, sp, ps, bin_ps):
         setup_cpu.sp = sp
@@ -82,8 +82,8 @@ class TestPLP:
                                                      'zero_flag': True,
                                                      'interrupt_flag': False,
                                                      'decimal_flag': True,
-                                                     'break_flag': False,
-                                                     'reserved': False,
+                                                     'break_flag': True,
+                                                     'reserved': True,
                                                      'overflow_flag': False,
                                                      'negative_flag': True
                                                  }, 0b10001011),
@@ -92,8 +92,8 @@ class TestPLP:
                                                      'zero_flag': False,
                                                      'interrupt_flag': False,
                                                      'decimal_flag': False,
-                                                     'break_flag': False,
-                                                     'reserved': False,
+                                                     'break_flag': True,
+                                                     'reserved': True,
                                                      'overflow_flag': False,
                                                      'negative_flag': False
                                                  }, 0b00000000),
@@ -103,7 +103,7 @@ class TestPLP:
                                                      'interrupt_flag': True,
                                                      'decimal_flag': True,
                                                      'break_flag': True,
-                                                     'reserved': False,
+                                                     'reserved': True,
                                                      'overflow_flag': True,
                                                      'negative_flag': True
                                                  }, 0b11011111)])

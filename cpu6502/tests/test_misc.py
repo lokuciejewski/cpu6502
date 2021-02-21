@@ -12,30 +12,30 @@ class TestBRK:
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
-                                                 'reserved': False,
+                                                 'reserved': True,
                                                  'overflow_flag': False,
                                                  'negative_flag': True
-                                             }, 0b10001011),
+                                             }, 0b10111011),
                                             ({
                                                  'carry_flag': False,
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': False,
                                                  'break_flag': False,
-                                                 'reserved': False,
+                                                 'reserved': True,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
-                                             }, 0b00000000),
+                                             }, 0b00110000),
                                             ({
                                                  'carry_flag': True,
                                                  'zero_flag': True,
                                                  'interrupt_flag': True,
                                                  'decimal_flag': True,
                                                  'break_flag': False,
-                                                 'reserved': False,
+                                                 'reserved': True,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
-                                             }, 0b11001111)])
+                                             }, 0b11111111)])
     @pytest.mark.parametrize('iv_fst, iv_snd', [(0x25, 0x00), (0xa1, 0x44), (0xff, 0x0f)])
     def test_brk_implied(self, setup_cpu, pc_fst, pc_snd, ps, bin_ps, iv_fst, iv_snd):
         pc = pc_snd + (pc_fst << 8)
@@ -43,14 +43,14 @@ class TestBRK:
         setup_cpu.memory[pc] = 0x0  # BRK instruction
         setup_cpu.memory[0xfffe] = iv_snd
         setup_cpu.memory[0xffff] = iv_fst  # IRQ interrupt vector
-        ps['break_flag'] = False  # For some unknown reason the break flag gets set in between the tests?
         setup_cpu.ps = ps
         setup_cpu.pc = pc
         setup_cpu.execute(1)
         assert setup_cpu.memory[setup_cpu.sp + 0x0101] == bin_ps
-        assert setup_cpu.memory[setup_cpu.sp + 0x0102] == pc_fst
-        assert setup_cpu.memory[setup_cpu.sp + 0x0103] == pc_snd + 1
+        assert setup_cpu.memory[setup_cpu.sp + 0x0102] == pc_snd + 1
+        assert setup_cpu.memory[setup_cpu.sp + 0x0103] == pc_fst
         assert setup_cpu.ps['break_flag']
+        assert setup_cpu.ps['interrupt_flag']
         assert setup_cpu.pc == expected_pc
         assert setup_cpu.clock.total_clock_cycles == 7
 
@@ -77,8 +77,8 @@ class TestRTI:
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': True,
-                                                 'break_flag': False,
-                                                 'reserved': False,
+                                                 'break_flag': True,
+                                                 'reserved': True,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
                                              }, 0b11001001),
@@ -87,8 +87,8 @@ class TestRTI:
                                                  'zero_flag': False,
                                                  'interrupt_flag': False,
                                                  'decimal_flag': False,
-                                                 'break_flag': False,
-                                                 'reserved': False,
+                                                 'break_flag': True,
+                                                 'reserved': True,
                                                  'overflow_flag': False,
                                                  'negative_flag': False
                                              }, 0b00000000),
@@ -97,8 +97,8 @@ class TestRTI:
                                                  'zero_flag': True,
                                                  'interrupt_flag': True,
                                                  'decimal_flag': True,
-                                                 'break_flag': False,
-                                                 'reserved': False,
+                                                 'break_flag': True,
+                                                 'reserved': True,
                                                  'overflow_flag': True,
                                                  'negative_flag': True
                                              }, 0b11001111)])

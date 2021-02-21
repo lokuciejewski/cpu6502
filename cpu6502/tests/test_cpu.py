@@ -81,8 +81,8 @@ class TestCPU:
                                                      'zero_flag': False,
                                                      'interrupt_flag': False,
                                                      'decimal_flag': True,
-                                                     'break_flag': False,
-                                                     'reserved': False,
+                                                     'break_flag': True,
+                                                     'reserved': True,
                                                      'overflow_flag': True,
                                                      'negative_flag': True
                                                  }, 0b11001001),
@@ -91,8 +91,8 @@ class TestCPU:
                                                      'zero_flag': False,
                                                      'interrupt_flag': False,
                                                      'decimal_flag': False,
-                                                     'break_flag': False,
-                                                     'reserved': False,
+                                                     'break_flag': True,
+                                                     'reserved': True,
                                                      'overflow_flag': False,
                                                      'negative_flag': False
                                                  }, 0b00000000),
@@ -240,8 +240,8 @@ class TestCPU:
         pc_start = setup_cpu.pc
         setup_cpu.sp = sp
         setup_cpu.push_word_on_stack(value)
-        assert setup_cpu.memory[setup_cpu.sp + 0x0102] == np.ubyte(value)
-        assert setup_cpu.memory[setup_cpu.sp + 0x0101] == np.ubyte(value >> 8)
+        assert setup_cpu.memory[setup_cpu.sp + 0x0102] == np.ubyte(value >> 8)
+        assert setup_cpu.memory[setup_cpu.sp + 0x0101] == np.ubyte(value)
         assert setup_cpu.sp == sp - 2
         assert setup_cpu.clock.total_clock_cycles == 3
         assert setup_cpu.pc == pc_start
