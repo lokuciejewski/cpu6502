@@ -16,7 +16,7 @@ def setup_cpu() -> CPU:
     memory = Memory()
     memory[0xfffc] = 0x00
     memory[0xfffd] = 0x02  # All test instructions should start at 0x0200
-    with patch.object(CPU, 'initialise_memory'):
+    with patch.object(CPU, 'initialise_memory'), patch.object(CPU, 'initialise_io'):
         setup_cpu.memory = memory
         setup_cpu.reset()
         setup_cpu.clock.total_clock_cycles = 0  # Only for testing purposes

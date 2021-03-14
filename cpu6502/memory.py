@@ -46,4 +46,5 @@ class Memory:
         self.data = np.fromfile(filepath, dtype=np.ubyte)
         offset_array = np.zeros(shape=start_offset, dtype=np.ubyte)
         self.data = np.append(offset_array, self.data)
+        self.data = np.append(self.data, np.zeros(shape=(self.MAX_SIZE - len(self.data)), dtype=np.ubyte))
         return True

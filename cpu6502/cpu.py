@@ -78,9 +78,14 @@ class CPU(object):
                f' -> 10 next bytes after program counter: {self.memory.get_values(self.pc, 10)}'
 
     def initialise_memory(self) -> None:
+        ~self.clock
         self.memory = Memory()
 
-    def reset(self) -> None:
+    def initialise_io(self, io, **kwargs) -> None:
+        ~self.clock
+        self.io = io(**kwargs)
+
+    def reset(self, io=None, **kwargs) -> None:
         self.pc = 0xfffc
         ~self.clock
         self.sp = 0xff
@@ -89,17 +94,14 @@ class CPU(object):
         self.idx = 0
         self.idy = 0
         self.ps['interrupt_flag'] = True
-        # transfer .X to stack
+        # push idx on stack
+        self.push_byte_on_stack(np.ubyte(self.idx))
         self.ps['decimal_flag'] = False
-        # check for cartridge
-        ~self.clock
-        # if .Z == 0 then no cartridge detected
         # set bit 5 (MCM) off, bit 3 (38 cols) off
         # initialise I/O
-        ~self.clock
+        # self.initialise_io(io, **kwargs)
         # initialise memory
         self.initialise_memory()
-        ~self.clock
         # set I/O vectors (0x0314...0x0333) to kernel defaults
         # set system IRQ to correct value and start
         pc_address = self.fetch_word()
