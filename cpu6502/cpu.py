@@ -4,6 +4,7 @@ from time import sleep
 
 import numpy as np
 from numpy import ushort, ubyte
+import RPi.GPIO as GPIO
 
 import cpu6502.instructions.instructions
 from cpu6502.memory import Memory
@@ -18,6 +19,9 @@ class CPU(object):
         def __init__(self, speed_mhz=0):
             self.cycles = True
             self.total_clock_cycles = 0
+            self.clock_pin = 15
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.clock_pin, GPIO.OUT)
             if speed_mhz > 0:
                 self.speed = 1 / (1000 * speed_mhz)
             else:
@@ -29,8 +33,11 @@ class CPU(object):
             :return: None
             """
             self.cycles = not self.cycles
+            GPIO.output(self.clock_pin, 0)
             self.total_clock_cycles += 1
             sleep(self.speed)
+            self.cycles = not self.cycles
+            GPIO.output(self.clock_pin, 1)
 
         def __invert__(self):
             """
@@ -72,10 +79,8 @@ class CPU(object):
                f' -> CPU registers:\n' \
                f'\t -> Program counter: {hex(self.pc)}\n' \
                f'\t -> Stack pointer: {hex(self.sp)}\n' \
-               f'\t -> Top 10 stack values: {self.memory.get_stack(10)}\n' \
                f'\t -> Accumulator: {hex(self.acc)}; X index: {hex(self.idx)}; Y index: {hex(self.idy)}\n' \
-               f' -> Processor status bits: {self.ps}\n' \
-               f' -> 10 next bytes after program counter: {self.memory.get_values(self.pc, 10)}'
+               f' -> Processor status bits: {self.ps}\n'
 
     def initialise_memory(self) -> None:
         ~self.clock
@@ -147,11 +152,13 @@ class CPU(object):
             instruction = self.fetch_byte()
             if len(instruction) == 3:  # This means the 0 was cut out like in 0x09 -> 0x9
                 instruction = f'0x0{instruction.split("x")[-1]}'
+            
             try:
                 self.instructions.execute(instruction)
             except KeyError:
                 if instruction != '0xff':
                     print(f'Instruction {instruction} not recognised. Skipping...')
+                    input()
 
     def fetch_byte(self) -> hex:
         try:
