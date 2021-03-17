@@ -5,7 +5,7 @@ from cpu6502.memory import Memory
 from time import sleep
 
 if __name__ == '__main__':
-    cpu = CPU(speed_mhz=0.002)
+    cpu = CPU(speed_mhz=1)
     memory = Memory()
     if not memory.load_binary_file('move_val_around.bin', start_offset=0x1):
         print('Memory not loaded!')

@@ -35,9 +35,10 @@ class CPU(object):
             self.cycles = not self.cycles
             GPIO.output(self.clock_pin, 0)
             self.total_clock_cycles += 1
-            sleep(self.speed)
+            sleep(self.speed/2)
             self.cycles = not self.cycles
             GPIO.output(self.clock_pin, 1)
+            sleep(self.speed/2)
 
         def __invert__(self):
             """
